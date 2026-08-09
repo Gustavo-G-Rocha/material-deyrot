@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel · Pedidos de material</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body { background: var(--fundo-alt); }
+    .painel { padding: 2rem 0 4rem; }
+    .painel-cabeca { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .cartao { background: #fff; border: 1px solid var(--borda); border-radius: 12px; padding: 1.1rem 1.2rem; }
+    .cartao .n { font-size: 1.9rem; font-weight: 800; letter-spacing: -.03em; }
+    .cartao .r { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--tinta-suave); font-weight: 700; }
+    .cartao .d { font-size: .85rem; color: var(--tinta-suave); margin-top: .4rem; }
+    .tabela-caixa { background: #fff; border: 1px solid var(--borda); border-radius: 12px; overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; white-space: nowrap; }
+    th, td { padding: .7rem .9rem; text-align: left; border-bottom: 1px solid var(--borda); }
+    th { background: var(--fundo-alt); font-size: .74rem; text-transform: uppercase; letter-spacing: .07em; color: var(--tinta-suave); position: sticky; top: 0; }
+    tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: rgba(27,77,216,.03); }
+    .pill { display: inline-block; padding: .15rem .55rem; border-radius: 999px; font-size: .75rem; font-weight: 700; background: var(--fundo-alt); border: 1px solid var(--borda); }
+    .nota { font-weight: 800; color: var(--primaria); }
+    select.status { font: inherit; font-size: .82rem; padding: .25rem .4rem; border: 1px solid var(--borda); border-radius: 6px; background: #fff; }
+    .filtros { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+    .aviso { background: #fff; border: 1px solid var(--borda); border-radius: 12px; padding: 2rem; text-align: center; }
+  </style>
+</head>
+<body>
+<div class="wrap painel">
+  <div class="painel-cabeca">
+    <div>
+      <h1 style="font-size:1.6rem;margin:0">Pedidos de material</h1>
+      <p style="margin:.2rem 0 0;color:var(--tinta-suave);font-size:.9rem">Ordenado por engajamento — quem rende mais aparece primeiro.</p>
+    </div>
+    <div style="display:flex;gap:.6rem">
+      <button class="btn btn-vazado btn-sm" id="recarregar">Atualizar</button>
+      <a class="btn btn-primario btn-sm" id="exportar">Baixar CSV</a>
+    </div>
+  </div>
+
+  <div id="conteudo">
+    <div class="aviso">Carregando...</div>
+  </div>
+</div>
+
+<script type="module">
+const token = new URLSearchParams(location.search).get('token') || '';
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const STATUS = ['novo', 'separado', 'enviado', 'entregue', 'cancelado'];
+let filtroStatus = '';
+
+$('#exportar').href = `/api/admin/export.csv?token=${encodeURIComponent(token)}`;
+$('#recarregar').addEventListener('click', carregar);
+
+carregar();
+
+async function carregar() {
+  const url = `/api/admin/pedidos?token=${encodeURIComponent(token)}`
+    + (filtroStatus ? `&status=${filtroStatus}` : '');
+  const r = await fetch(url);
+
+  if (r.status === 401) {
+    $('#conteudo').innerHTML = `<div class="aviso">
+      <h2>Token inválido</h2>
+      <p>Acesse com <code>/admin?token=SEU_TOKEN</code> (o valor de <code>ADMIN_TOKEN</code>).</p>
+    </div>`;
+    return;
+  }
+
+  const { resumo, pedidos } = await r.json();
+  render(resumo, pedidos);
+}
+
+function render(resumo, pedidos) {
+  const topoKit = resumo.porKit.map(k => `${k.kit}: ${k.n}`).join(' · ') || '—';
+  const topoUf = resumo.porUf.slice(0, 4).map(u => `${u.uf}: ${u.n}`).join(' · ') || '—';
+
+  $('#conteudo').innerHTML = `
+    <div class="cartoes">
+      <div class="cartao"><div class="r">Pedidos</div><div class="n">${resumo.total}</div></div>
+      <div class="cartao"><div class="r">Adesivos carro</div><div class="n">${resumo.adesivos.carros}</div></div>
+      <div class="cartao"><div class="r">Adesivos moto</div><div class="n">${resumo.adesivos.motos}</div></div>
+      <div class="cartao"><div class="r">Por kit</div><div class="d">${esc(topoKit)}</div></div>
+      <div class="cartao"><div class="r">Top estados</div><div class="d">${esc(topoUf)}</div></div>
+    </div>
+
+    <div class="filtros">
+      <label>Status:
+        <select class="status" id="filtro">
+          <option value="">todos</option>
+          ${STATUS.map(s => `<option value="${s}" ${s === filtroStatus ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </label>
+      <span style="color:var(--tinta-suave);font-size:.85rem">${pedidos.length} exibidos</span>
+    </div>
+
+    <div class="tabela-caixa">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Nota</th><th>Nome</th><th>WhatsApp</th><th>E-mail</th>
+            <th>Cidade/UF</th><th>Endereço</th><th>Kit</th><th>Carro</th><th>Moto</th>
+            <th>Status</th><th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${pedidos.map(linha).join('') || '<tr><td colspan="12" style="text-align:center;padding:2rem;color:var(--tinta-suave)">Nenhum pedido ainda.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  $('#filtro').addEventListener('change', (e) => { filtroStatus = e.target.value; carregar(); });
+  document.querySelectorAll('[data-status-id]').forEach(sel => {
+    sel.addEventListener('change', async () => {
+      await fetch(`/api/admin/status?token=${encodeURIComponent(token)}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: Number(sel.dataset.statusId), status: sel.value }),
+      });
+      carregar();
+    });
+  });
+}
+
+function linha(p) {
+  const endereco = `${p.endereco}, ${p.numero}${p.complemento ? ' — ' + p.complemento : ''}`;
+  return `<tr>
+    <td>${p.id}</td>
+    <td class="nota">${p.engajamento}</td>
+    <td>${esc(p.nome)}</td>
+    <td>${esc(p.whatsapp)}</td>
+    <td>${esc(p.email)}</td>
+    <td>${esc(p.cidade)}/${esc(p.uf)}</td>
+    <td title="${esc(endereco)}">${esc(endereco.slice(0, 34))}${endereco.length > 34 ? '…' : ''}</td>
+    <td><span class="pill">${esc(p.kit)}</span></td>
+    <td>${p.adesivo_carro === 'quero' ? p.qtd_carros : '—'}</td>
+    <td>${p.adesivo_moto === 'quero' ? p.qtd_motos : '—'}</td>
+    <td>
+      <select class="status" data-status-id="${p.id}">
+        ${STATUS.map(s => `<option value="${s}" ${s === p.status ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </td>
+    <td>${esc((p.criado_em || '').slice(0, 16))}</td>
+  </tr>`;
+}
+</script>
+</body>
+</html>

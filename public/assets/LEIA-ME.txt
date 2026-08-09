@@ -1,0 +1,14 @@
+Coloque aqui as imagens da campanha (use fotos e artes suas, com direito de uso):
+
+  candidato-1.png      foto do primeiro candidato (quadrada, 400x400 ou maior)
+  candidato-2.png      foto do segundo candidato
+  adesivo-carro.jpg    foto do adesivo aplicado no vidro traseiro
+
+Os caminhos das fotos dos candidatos são definidos em config.js
+(campanha.candidatos[].foto). A foto do adesivo está no bloco
+.placeholder-img em public/index.html — troque a div por:
+
+  <img src="/assets/adesivo-carro.jpg" alt="Adesivo aplicado no vidro traseiro">
+
+Enquanto não houver imagem, aparecem as iniciais do candidato e um
+placeholder tracejado no lugar da foto do adesivo.

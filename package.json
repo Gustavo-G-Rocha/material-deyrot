@@ -1,0 +1,18 @@
+{
+  "name": "material-campanha",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Portal de pedido de material de campanha: landing, formulário multi-etapas, Postgres e painel administrativo.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "preview": "node preview.js"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}

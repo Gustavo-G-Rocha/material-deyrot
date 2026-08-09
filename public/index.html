@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Peça seu material de campanha</title>
+  <meta name="description" content="Peça gratuitamente o kit de material de campanha e ajude na divulgação na sua rua, no seu bairro e na sua cidade.">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="topo">
+  <div class="wrap topo-inner">
+    <a class="marca" href="/">
+      <span class="marca-nome" data-campanha-titulo>Material de Campanha</span>
+    </a>
+    <nav class="topo-nav">
+      <span data-menu></span>
+      <a class="btn btn-primario btn-sm" href="#pedir">Pedir material</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= 1. HERO ================= -->
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-texto">
+      <p class="olho">Campanha <span data-ano></span> · <span data-partido></span></p>
+      <h1>O material chega até você. A rua é com a gente.</h1>
+      <p class="lead">
+        Preencha o formulário, escolha o tamanho do kit que cabe na sua rotina
+        e receba panfletos, adesivos e bandeiras em casa — sem custo nenhum.
+      </p>
+      <div class="hero-acoes">
+        <a class="btn btn-primario btn-lg" href="#pedir">Quero meu kit</a>
+        <a class="btn btn-vazado btn-lg" href="#adesivo">Ver o adesivo de carro</a>
+      </div>
+      <ul class="hero-selos">
+        <li>Envio gratuito</li>
+        <li>Leva 2 minutos</li>
+        <li>Dá pra começar pequeno</li>
+      </ul>
+    </div>
+
+    <aside class="hero-cards" data-candidatos></aside>
+  </div>
+</section>
+
+<!-- ================= 2. FORMULÁRIO ================= -->
+<section id="pedir" class="secao secao-form">
+  <div class="wrap wrap-estreito">
+    <header class="secao-cabeca">
+      <h2>Peça seu material</h2>
+      <p>Leva cerca de 2 minutos. Os dados são usados só para o envio e para falar com você sobre a campanha.</p>
+    </header>
+
+    <div class="form-card">
+      <div class="progresso">
+        <div class="progresso-barra"><span data-progresso-barra></span></div>
+        <p class="progresso-texto">Etapa <b data-etapa-atual>1</b> de <b data-etapa-total>6</b></p>
+      </div>
+
+      <form id="form-pedido" novalidate>
+        <!-- honeypot anti-bot -->
+        <div class="hp" aria-hidden="true">
+          <label>Não preencha este campo <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+        </div>
+
+        <!-- ETAPA 1 -->
+        <fieldset class="etapa" data-etapa="1">
+          <legend>Seus dados</legend>
+          <div class="campo">
+            <label for="nome">Nome completo</label>
+            <input id="nome" name="nome" type="text" autocomplete="name" placeholder="Como você assina">
+            <p class="erro" data-erro="nome"></p>
+          </div>
+          <div class="campo">
+            <label for="email">E-mail</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="voce@email.com">
+            <p class="erro" data-erro="email"></p>
+          </div>
+          <div class="campo">
+            <label for="whatsapp">WhatsApp</label>
+            <input id="whatsapp" name="whatsapp" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(00) 00000-0000">
+            <p class="ajuda">É por aqui que avisamos quando o material sair para entrega.</p>
+            <p class="erro" data-erro="whatsapp"></p>
+          </div>
+        </fieldset>
+
+        <!-- ETAPA 2 -->
+        <fieldset class="etapa" data-etapa="2" hidden>
+          <legend>Endereço de entrega</legend>
+          <div class="linha">
+            <div class="campo campo-cep">
+              <label for="cep">CEP</label>
+              <input id="cep" name="cep" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000">
+              <p class="ajuda"><a href="https://buscacepinter.correios.com.br/app/endereco/" target="_blank" rel="noopener">Não sei o meu CEP</a></p>
+              <p class="erro" data-erro="cep"></p>
+            </div>
+            <div class="campo campo-uf">
+              <label for="uf">UF</label>
+              <select id="uf" name="uf"><option value="">--</option></select>
+              <p class="erro" data-erro="uf"></p>
+            </div>
+          </div>
+          <div class="campo">
+            <label for="cidade">Cidade</label>
+            <input id="cidade" name="cidade" type="text" autocomplete="address-level2">
+            <p class="erro" data-erro="cidade"></p>
+          </div>
+          <div class="campo">
+            <label for="bairro">Bairro</label>
+            <input id="bairro" name="bairro" type="text" autocomplete="address-level3">
+          </div>
+          <div class="linha">
+            <div class="campo campo-endereco">
+              <label for="endereco">Endereço</label>
+              <input id="endereco" name="endereco" type="text" autocomplete="address-line1" placeholder="Rua, avenida...">
+              <p class="erro" data-erro="endereco"></p>
+            </div>
+            <div class="campo campo-numero">
+              <label for="numero">Número</label>
+              <input id="numero" name="numero" type="text" placeholder="123">
+              <p class="erro" data-erro="numero"></p>
+            </div>
+          </div>
+          <div class="campo">
+            <label for="complemento">Complemento <span class="opcional">(opcional)</span></label>
+            <input id="complemento" name="complemento" type="text" placeholder="Apto, bloco, referência">
+          </div>
+        </fieldset>
+
+        <!-- ETAPA 3 -->
+        <fieldset class="etapa" data-etapa="3" hidden>
+          <legend>Adesivos de veículo</legend>
+
+          <div class="bloco">
+            <h3>Adesivo de carro</h3>
+            <div class="opcoes" data-opcoes="adesivo_carro"></div>
+            <p class="erro" data-erro="adesivo_carro"></p>
+            <div class="campo condicional" data-quando="adesivo_carro=quero" hidden>
+              <label for="qtd_carros">Quantos carros você vai adesivar?</label>
+              <input id="qtd_carros" name="qtd_carros" type="number" min="1" max="20" value="1">
+            </div>
+          </div>
+
+          <div class="bloco">
+            <h3>Adesivo de moto</h3>
+            <div class="opcoes" data-opcoes="adesivo_moto"></div>
+            <p class="erro" data-erro="adesivo_moto"></p>
+            <div class="campo condicional" data-quando="adesivo_moto=quero" hidden>
+              <label for="qtd_motos">Quantas motos você vai adesivar?</label>
+              <input id="qtd_motos" name="qtd_motos" type="number" min="1" max="20" value="1">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- ETAPA 4 -->
+        <fieldset class="etapa" data-etapa="4" hidden>
+          <legend>Quanto você consegue ajudar</legend>
+          <p class="ajuda ajuda-topo">Não tem resposta certa. Isso só nos ajuda a mandar a quantidade certa de material.</p>
+
+          <div class="bloco">
+            <h3>Quanto tempo por semana você tem para distribuir?</h3>
+            <div class="opcoes" data-opcoes="disponibilidade"></div>
+            <p class="erro" data-erro="disponibilidade"></p>
+          </div>
+
+          <div class="bloco">
+            <h3>Quantas pessoas você fala com frequência no dia a dia?</h3>
+            <div class="opcoes" data-opcoes="contatos"></div>
+            <p class="erro" data-erro="contatos"></p>
+          </div>
+
+          <div class="bloco">
+            <h3>Você repassaria material para outras pessoas distribuírem?</h3>
+            <div class="opcoes" data-opcoes="distribuidores"></div>
+            <p class="erro" data-erro="distribuidores"></p>
+          </div>
+
+          <div class="bloco">
+            <h3>Você mora em condomínio ou prédio?</h3>
+            <div class="opcoes" data-opcoes="mora_condominio"></div>
+            <p class="erro" data-erro="mora_condominio"></p>
+            <div class="campo condicional" data-quando="mora_condominio=sim" hidden>
+              <label for="unidades_condominio">Quantas unidades tem o condomínio? <span class="opcional">(opcional)</span></label>
+              <input id="unidades_condominio" name="unidades_condominio" type="number" min="1" max="5000">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- ETAPA 5 -->
+        <fieldset class="etapa" data-etapa="5" hidden>
+          <legend>Escolha seu kit</legend>
+          <div class="recomendacao" data-recomendacao hidden></div>
+          <div class="grade-kits grade-kits-escolha" data-kits-escolha></div>
+          <p class="erro" data-erro="kit"></p>
+        </fieldset>
+
+        <!-- ETAPA 6 -->
+        <fieldset class="etapa" data-etapa="6" hidden>
+          <legend>Confira e confirme</legend>
+          <div class="revisao" data-revisao></div>
+
+          <label class="aceite">
+            <input type="checkbox" name="aceite_lgpd" id="aceite_lgpd">
+            <span>
+              Autorizo o uso dos meus dados para o envio do material e para contato
+              sobre a campanha, nos termos da
+              <a data-link-privacidade target="_blank" rel="noopener">política de privacidade</a>.
+              Posso pedir a exclusão a qualquer momento.
+            </span>
+          </label>
+          <p class="erro" data-erro="aceite_lgpd"></p>
+          <p class="erro erro-geral" data-erro-geral></p>
+        </fieldset>
+
+        <div class="form-acoes">
+          <button type="button" class="btn btn-vazado" data-voltar hidden>Voltar</button>
+          <button type="button" class="btn btn-primario" data-continuar>Continuar</button>
+          <button type="submit" class="btn btn-primario" data-enviar hidden>Pedir meu material</button>
+        </div>
+      </form>
+
+      <!-- SUCESSO -->
+      <div class="sucesso" data-sucesso hidden>
+        <div class="sucesso-icone">✓</div>
+        <h2>Pedido registrado!</h2>
+        <p data-sucesso-msg></p>
+        <div class="sucesso-acoes">
+          <a class="btn btn-primario" data-link-whatsapp target="_blank" rel="noopener">Entrar no grupo do WhatsApp</a>
+          <button class="btn btn-vazado" data-compartilhar>Chamar amigos para pedir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3. ADESIVO ================= -->
+<section id="adesivo" class="secao secao-alt">
+  <div class="wrap adesivo-inner">
+    <div class="adesivo-img">
+      <div class="placeholder-img">
+        <span>Foto do adesivo aqui</span>
+        <small>public/assets/adesivo-carro.jpg</small>
+      </div>
+    </div>
+    <div class="adesivo-texto">
+      <h2>O adesivo perfurado de vidro traseiro</h2>
+      <p>
+        É o material que mais rende: o carro circula, e a mensagem vai junto o dia inteiro.
+        O corte perfurado deixa você enxergar normalmente de dentro do veículo.
+      </p>
+      <ul class="lista-check">
+        <li><strong>Milhares de visualizações por dia</strong> — no trânsito, no estacionamento, na rua de casa.</li>
+        <li><strong>Visibilidade preservada</strong> — de dentro para fora, o vidro continua transparente.</li>
+        <li><strong>Aplicação simples</strong> — vem com instruções e sai sem deixar resíduo.</li>
+      </ul>
+      <a class="btn btn-primario" href="#pedir">Quero o adesivo</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4. KITS ================= -->
+<section id="kits" class="secao">
+  <div class="wrap">
+    <header class="secao-cabeca">
+      <h2>Um kit para cada ritmo</h2>
+      <p>Não precisa se comprometer com mais do que você dá conta. Comece por onde der e peça mais depois.</p>
+    </header>
+    <div class="grade-kits" data-kits-vitrine></div>
+    <p class="centro" style="margin-top:2rem">
+      <a class="btn btn-primario btn-lg" href="#pedir">Descobrir meu kit</a>
+    </p>
+  </div>
+</section>
+
+<!-- ================= 5. COMO FUNCIONA ================= -->
+<section id="como-funciona" class="secao secao-alt">
+  <div class="wrap">
+    <header class="secao-cabeca">
+      <h2>Como funciona</h2>
+    </header>
+    <ol class="passos">
+      <li>
+        <span class="passo-num">1</span>
+        <h3>Você preenche o formulário</h3>
+        <p>Contato, endereço de entrega e algumas perguntas rápidas sobre quanto tempo você tem para ajudar.</p>
+      </li>
+      <li>
+        <span class="passo-num">2</span>
+        <h3>A gente sugere o kit certo</h3>
+        <p>Com base nas suas respostas, indicamos o tamanho que faz sentido. Você pode escolher outro se quiser.</p>
+      </li>
+      <li>
+        <span class="passo-num">3</span>
+        <h3>O material sai para entrega</h3>
+        <p>Separamos, despachamos e avisamos por WhatsApp. Aí é só distribuir.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= 6. FECHAMENTO ================= -->
+<section class="secao secao-cta">
+  <div class="wrap wrap-estreito centro">
+    <h2>Eleição se ganha na rua</h2>
+    <p>Cada panfleto entregue por alguém conhecido vale mais do que qualquer anúncio. Peça o seu e comece hoje.</p>
+    <a class="btn btn-destaque btn-lg" href="#pedir">Pedir meu material</a>
+  </div>
+</section>
+
+<footer class="rodape">
+  <div class="wrap rodape-inner">
+    <p data-rodape-campanha></p>
+    <p class="rodape-links">
+      <a data-link-privacidade target="_blank" rel="noopener">Política de Privacidade</a>
+      <a data-link-instagram target="_blank" rel="noopener">Instagram</a>
+      <a data-link-site target="_blank" rel="noopener">Site oficial</a>
+      <a data-link-email>Fale com a equipe</a>
+    </p>
+  </div>
+</footer>
+
+<script src="/app.js" type="module"></script>
+</body>
+</html>
