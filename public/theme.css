@@ -7,20 +7,20 @@
 
 :root {
   /* destaque da campanha */
-  --acento: #2f7df6;
-  --acento-claro: #5b9bff;
-  --acento-escuro: #1b56b8;
-  --acento-tinta: #08111f;          /* texto sobre fundo de acento */
+  --acento: #f5b301;
+  --acento-claro: #ffd24a;
+  --acento-escuro: #c98a00;
+  --acento-tinta: #15100a;          /* texto sobre fundo de acento — sempre escuro aqui */
 
   /* fundos, do mais escuro ao mais claro */
-  --fundo: #0b0d12;
-  --fundo-2: #12151d;
-  --fundo-3: #1a1f2b;
-  --fundo-rodape: #06080c;
+  --fundo: #0c0b09;
+  --fundo-2: #141210;
+  --fundo-3: #1d1a15;
+  --fundo-rodape: #070605;
 
   /* texto */
-  --tinta: #f2f4f8;
-  --tinta-fraca: #a4adbe;
+  --tinta: #f6f3ec;
+  --tinta-fraca: #b0a99b;
 
   /* véus derivados do acento — a chave para recolorir tudo de uma vez */
   --veu-1: color-mix(in srgb, var(--acento) 5%, transparent);
@@ -95,7 +95,7 @@ h3 { font-size: 1.08rem; }
 }
 .btn-primario {
   background: linear-gradient(135deg, var(--acento-claro), var(--acento-escuro));
-  color: #fff;
+  color: var(--acento-tinta);
   box-shadow: 0 10px 28px color-mix(in srgb, var(--acento) 32%, transparent);
 }
 .btn-primario:hover {

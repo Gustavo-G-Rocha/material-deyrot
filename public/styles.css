@@ -79,7 +79,7 @@
 .grade-kits-escolha .kit.selecionado::after {
   content: "✓"; position: absolute; top: 16px; right: 18px;
   width: 26px; height: 26px; border-radius: 50%;
-  background: var(--acento); color: #fff;
+  background: var(--acento); color: var(--acento-tinta);
   display: grid; place-items: center; font-size: .82rem; font-weight: 700;
 }
 .kit-etiqueta {

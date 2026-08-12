@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Política de Privacidade</title>
+  <meta name="description" content="Como tratamos os dados pessoais de quem pede material de campanha, nos termos da Lei Geral de Proteção de Dados.">
+  <meta name="robots" content="index, follow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    .doc { padding: 120px 0 90px; }
+    .doc-cabeca { margin-bottom: 46px; }
+    .doc-cabeca h1 { font-size: clamp(2rem, 6vw, 3.2rem); margin-bottom: 14px; }
+    .doc-data { font-family: var(--fonte-cond); text-transform: uppercase; letter-spacing: .1em; font-size: .78rem; color: var(--tinta-fraca); }
+
+    .doc h2 {
+      font-family: var(--fonte-cond); font-weight: 600;
+      font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em;
+      color: var(--acento-claro);
+      margin: 42px 0 14px; padding-top: 22px;
+      border-top: 1px solid var(--linha);
+    }
+    .doc h3 { font-size: 1rem; margin: 22px 0 8px; }
+    .doc p, .doc li { color: var(--tinta-fraca); }
+    .doc p { margin-bottom: 14px; }
+    .doc ul, .doc ol { margin: 0 0 16px 22px; display: grid; gap: 8px; }
+    .doc strong { color: var(--tinta); }
+    .doc a { color: var(--acento-claro); border-bottom: 1px solid currentColor; }
+
+    .tabela-dados { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: .92rem; }
+    .tabela-dados th, .tabela-dados td {
+      padding: 12px 14px; text-align: left; vertical-align: top;
+      border-bottom: 1px solid var(--linha-fraca);
+    }
+    .tabela-dados th {
+      font-family: var(--fonte-cond); font-size: .74rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .08em; color: var(--tinta-fraca);
+      background: var(--fundo-3);
+    }
+    .tabela-dados td { color: var(--tinta-fraca); }
+    .tabela-caixa { overflow-x: auto; border: 1px solid var(--linha-fraca); border-radius: var(--raio); margin-bottom: 20px; }
+
+    .aviso-edicao {
+      background: var(--veu-2); border: 1px solid var(--linha);
+      border-left: 3px solid var(--acento);
+      border-radius: var(--raio-sm); padding: 18px 22px; margin-bottom: 34px;
+    }
+    .aviso-edicao p { margin: 0; font-size: .92rem; }
+
+    .voltar { display: inline-block; margin-top: 46px; }
+  </style>
+</head>
+<body>
+
+<div class="wrap wrap-estreito doc">
+
+  <header class="doc-cabeca">
+    <h1>Política de Privacidade</h1>
+    <p class="doc-data">Última atualização: <span data-atualizado>12 de agosto de 2026</span></p>
+  </header>
+
+  <div class="aviso-edicao" data-aviso-edicao>
+    <p><strong>Antes de publicar:</strong> preencha em <code>config.js</code> o nome,
+    o CNPJ e o endereço do comitê, além do e-mail de contato. Recomendamos que a
+    advocacia da campanha revise este texto — ele foi redigido a partir do que o
+    formulário realmente coleta, mas a responsabilidade legal é do controlador.</p>
+  </div>
+
+  <p>
+    Esta política explica como tratamos os dados pessoais de quem pede material
+    de campanha neste site, em cumprimento à <strong>Lei nº 13.709/2018 — Lei Geral
+    de Proteção de Dados Pessoais (LGPD)</strong>.
+  </p>
+  <p>
+    Escrevemos em linguagem direta e sem letras miúdas. Se algo aqui não estiver
+    claro, escreva para o contato do fim da página.
+  </p>
+
+  <h2>1. Quem é responsável pelos seus dados</h2>
+  <p>
+    O <strong>controlador</strong> dos dados — quem decide o que é coletado e para
+    quê — é:
+  </p>
+  <ul>
+    <li><strong data-controlador-nome>—</strong></li>
+    <li>CNPJ <span data-controlador-cnpj>—</span></li>
+    <li><span data-controlador-endereco>—</span></li>
+  </ul>
+  <p>
+    Contato para assuntos de privacidade:
+    <a data-contato-email href="#">—</a>
+  </p>
+
+  <h2>2. Quais dados coletamos</h2>
+  <p>
+    Só o necessário para produzir, separar e entregar o material, e para falar com
+    você sobre a campanha. Não pedimos CPF, RG, título de eleitor, dados bancários
+    nem qualquer documento de identificação.
+  </p>
+
+  <div class="tabela-caixa">
+    <table class="tabela-dados">
+      <thead>
+        <tr><th>Categoria</th><th>Dados</th><th>Por que precisamos</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Identificação e contato</td>
+          <td>Nome completo, e-mail, número de WhatsApp</td>
+          <td>Identificar o pedido e avisar quando o material sair para entrega</td>
+        </tr>
+        <tr>
+          <td>Endereço de entrega</td>
+          <td>CEP, estado, cidade, bairro, logradouro, número e complemento</td>
+          <td>Entregar o material no endereço informado</td>
+        </tr>
+        <tr>
+          <td>Veículos</td>
+          <td>Se deseja adesivo de carro e de moto, e quantos veículos serão adesivados</td>
+          <td>Calcular a quantidade de adesivos a produzir e enviar</td>
+        </tr>
+        <tr>
+          <td>Perfil de distribuição</td>
+          <td>Tempo disponível por semana, quantidade aproximada de pessoas que
+              você alcança, disposição de repassar material a outras pessoas,
+              se mora em condomínio e o número aproximado de unidades</td>
+          <td>Dimensionar o tamanho do kit e organizar a ordem de envio</td>
+        </tr>
+        <tr>
+          <td>Pedido</td>
+          <td>Kit escolhido, kit sugerido pelo sistema, pontuação de distribuição
+              calculada a partir das suas respostas, data e hora, situação da entrega</td>
+          <td>Controlar a produção, a logística e o estoque do material</td>
+        </tr>
+        <tr>
+          <td>Registro técnico</td>
+          <td>Endereço IP e identificação do navegador (user agent) no momento do envio</td>
+          <td>Segurança: conter envios automatizados, abuso e pedidos fraudulentos</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    <strong>Sobre a pontuação:</strong> o sistema calcula uma nota a partir das suas
+    respostas da etapa de disponibilidade, usada para sugerir o tamanho do kit e
+    priorizar a fila de envio. É um cálculo simples e sem qualquer efeito jurídico
+    sobre você — e a escolha final do kit é sempre sua.
+  </p>
+
+  <h2>3. Com que base legal tratamos esses dados</h2>
+  <ul>
+    <li>
+      <strong>Consentimento</strong> (art. 7º, I): você marca uma caixa autorizando
+      o uso dos dados antes de enviar o pedido. Sem essa autorização, o formulário
+      não é enviado. Você pode revogar o consentimento a qualquer momento.
+    </li>
+    <li>
+      <strong>Cumprimento de obrigação legal ou regulatória</strong> (art. 7º, II):
+      registros de distribuição de material de campanha podem precisar ser mantidos
+      para a prestação de contas à Justiça Eleitoral.
+    </li>
+    <li>
+      <strong>Legítimo interesse</strong> (art. 7º, IX): registros técnicos usados
+      exclusivamente para segurança e prevenção de fraude no formulário.
+    </li>
+  </ul>
+
+  <h2>4. Para que usamos, e para que não usamos</h2>
+  <p>Usamos os seus dados para:</p>
+  <ul>
+    <li>produzir, separar e entregar o material que você pediu;</li>
+    <li>avisar sobre o andamento da entrega;</li>
+    <li>falar com você sobre a campanha e ações de rua, enquanto ela durar;</li>
+    <li>organizar a logística e a prestação de contas do material distribuído.</li>
+  </ul>
+  <p><strong>Não fazemos</strong> nenhuma das coisas abaixo:</p>
+  <ul>
+    <li>vender, alugar ou ceder seus dados a terceiros;</li>
+    <li>usar seus dados para publicidade de empresas;</li>
+    <li>enviar seus dados a outras campanhas ou candidaturas;</li>
+    <li>tomar decisões automatizadas com efeito jurídico sobre você.</li>
+  </ul>
+
+  <h2>5. Com quem compartilhamos</h2>
+  <p>
+    Compartilhamos o mínimo indispensável, e apenas com quem participa da entrega
+    ou da operação do site:
+  </p>
+  <ul>
+    <li><strong>Gráfica e fornecedores do material</strong> — quantidades, sem seus dados de contato quando possível;</li>
+    <li><strong>Transportadora ou serviço de entrega</strong> — nome, endereço e telefone, apenas para entregar;</li>
+    <li><strong>Empresa de hospedagem do site e do banco de dados</strong> — que armazena as informações em nosso nome, sob contrato;</li>
+    <li><strong>Autoridades públicas</strong> — quando houver determinação legal ou judicial.</li>
+  </ul>
+  <p>
+    Ao digitar o CEP, ele é consultado no serviço público de busca de endereços dos
+    Correios (ViaCEP) para preencher a cidade e a rua. Só o CEP é enviado nessa consulta.
+  </p>
+
+  <h2>6. Armazenamento e transferência internacional</h2>
+  <p>
+    Os dados ficam num banco de dados de acesso restrito, protegido por senha, e o
+    site é servido sob conexão criptografada (HTTPS). O painel de consulta dos
+    pedidos exige autenticação.
+  </p>
+  <p>
+    A infraestrutura de hospedagem pode manter servidores <strong>fora do Brasil</strong>.
+    Nesse caso, há transferência internacional de dados, feita nos termos do
+    art. 33 da LGPD, com o fornecedor obrigado contratualmente a garantir proteção
+    compatível com a lei brasileira.
+  </p>
+
+  <h2>7. Por quanto tempo guardamos</h2>
+  <ul>
+    <li>
+      <strong>Dados de entrega</strong> (endereço e contato): mantidos enquanto durar
+      a campanha e por até <strong>6 meses</strong> após o pleito, para resolver
+      pendências de entrega. Depois disso, são eliminados.
+    </li>
+    <li>
+      <strong>Registros necessários à prestação de contas eleitoral</strong>: mantidos
+      pelo prazo exigido pela legislação eleitoral.
+    </li>
+    <li>
+      <strong>Registros técnicos</strong> (IP e navegador): mantidos por até
+      <strong>6 meses</strong>.
+    </li>
+  </ul>
+  <p>Se você pedir a exclusão antes desses prazos, atendemos — salvo o que a lei obrigar a manter.</p>
+
+  <h2>8. Seus direitos</h2>
+  <p>O art. 18 da LGPD garante que você pode, a qualquer momento e sem custo:</p>
+  <ol>
+    <li>confirmar se tratamos dados seus;</li>
+    <li>acessar os dados que temos sobre você;</li>
+    <li>corrigir dados incompletos, inexatos ou desatualizados;</li>
+    <li>pedir anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade com a lei;</li>
+    <li>pedir a portabilidade dos dados a outro fornecedor;</li>
+    <li>pedir a eliminação dos dados tratados com base no seu consentimento;</li>
+    <li>saber com quais entidades compartilhamos seus dados;</li>
+    <li>ser informado sobre a possibilidade de não consentir, e o que isso acarreta;</li>
+    <li>revogar o consentimento a qualquer momento.</li>
+  </ol>
+  <p>
+    Para exercer qualquer um deles, escreva para
+    <a data-contato-email href="#">—</a>, informando o nome e o WhatsApp usados no
+    pedido. Respondemos em até <strong>15 dias</strong>. Podemos pedir uma confirmação
+    de identidade antes de atender, justamente para não entregar seus dados a outra pessoa.
+  </p>
+  <p>
+    Você também pode apresentar reclamação à
+    <a href="https://www.gov.br/anpd/" target="_blank" rel="noopener">Autoridade Nacional
+    de Proteção de Dados (ANPD)</a>.
+  </p>
+
+  <h2>9. Como parar de receber contato</h2>
+  <p>
+    É só responder qualquer mensagem pedindo para sair, ou escrever para o contato
+    acima. Retiramos você da lista de comunicação. Se já houver material a caminho,
+    a entrega pode seguir — aí é só recusar no recebimento.
+  </p>
+
+  <h2>10. Cookies</h2>
+  <p>
+    Este site <strong>não usa cookies de rastreamento, publicidade ou análise de
+    audiência</strong>, e não instala pixels de redes sociais. As informações que
+    você digita no formulário ficam no seu navegador apenas enquanto a página está
+    aberta, e são enviadas ao nosso servidor somente quando você confirma o pedido.
+  </p>
+
+  <h2>11. Crianças e adolescentes</h2>
+  <p>
+    O formulário é destinado a maiores de 18 anos. Não coletamos intencionalmente
+    dados de crianças ou adolescentes. Se identificarmos um cadastro nessa situação,
+    ele é eliminado. Responsáveis que suspeitem disso podem nos escrever.
+  </p>
+
+  <h2>12. Segurança</h2>
+  <p>
+    Adotamos medidas técnicas e administrativas para proteger seus dados: conexão
+    criptografada, acesso ao banco restrito à equipe responsável pela logística,
+    painel administrativo protegido por autenticação e limites contra envios
+    automatizados. Nenhum sistema é infalível — se ocorrer incidente de segurança
+    com risco relevante a você, comunicaremos você e a ANPD, como manda o art. 48.
+  </p>
+
+  <h2>13. Mudanças nesta política</h2>
+  <p>
+    Se esta política mudar, atualizamos a data no topo da página. Alterações
+    relevantes na finalidade do tratamento serão comunicadas pelos canais de
+    contato que você informou, e, quando a lei exigir, pediremos novo consentimento.
+  </p>
+
+  <h2>14. Contato</h2>
+  <p>
+    Dúvidas, pedidos de acesso, correção ou exclusão:
+    <a data-contato-email href="#">—</a>
+  </p>
+  <p data-controlador-rodape></p>
+
+  <a class="btn btn-vazado voltar" href="/">Voltar para o site</a>
+</div>
+
+<script type="module">
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => [...document.querySelectorAll(s)];
+  const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const cfg = await fetch('/api/config').then((r) => r.json());
+  const c = cfg.campanha;
+  const ctrl = c.controlador || {};
+  const email = c.suporte?.email || '';
+
+  document.documentElement.style.setProperty('--acento', c.tema.acento);
+  document.documentElement.style.setProperty('--acento-claro', c.tema.acentoClaro);
+  document.documentElement.style.setProperty('--fundo', c.tema.fundo);
+  document.documentElement.style.setProperty('--fundo-2', c.tema.fundo2);
+  document.documentElement.style.setProperty('--fundo-3', c.tema.fundo3);
+  document.documentElement.style.setProperty('--tinta', c.tema.tinta);
+  document.documentElement.style.setProperty('--tinta-fraca', c.tema.tintaFraca);
+
+  $('[data-controlador-nome]').textContent = ctrl.nome || '—';
+  $('[data-controlador-cnpj]').textContent = ctrl.cnpj || '—';
+  $('[data-controlador-endereco]').textContent = ctrl.endereco || '—';
+
+  $$('[data-contato-email]').forEach((a) => {
+    a.href = `mailto:${email}`;
+    a.textContent = email || '—';
+  });
+
+  $('[data-controlador-rodape]').innerHTML =
+    `${esc(ctrl.nome || '')} — campanha ${esc(String(c.ano))}, ${esc(c.partido)}.`;
+
+  // o aviso de edição some quando os dados do comitê já foram preenchidos
+  const pendente = !ctrl.cnpj || ctrl.cnpj.startsWith('00.000.000')
+    || !email || email.includes('seusite');
+  if (!pendente) $('[data-aviso-edicao]').hidden = true;
+
+  document.title = `Política de Privacidade · ${c.candidatos.map((x) => x.nome).join(' e ')}`;
+</script>
+</body>
+</html>

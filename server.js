@@ -249,6 +249,7 @@ const servidor = http.createServer(async (req, res) => {
     // ---- estáticos ------------------------------------------------------
     if (req.method !== 'GET') return json(res, 405, { erro: 'Método não permitido' });
     if (rota === '/admin') return servirEstatico(req, res, '/admin.html');
+    if (rota === '/privacidade') return servirEstatico(req, res, '/privacidade.html');
     return servirEstatico(req, res, rota === '/' ? '/index.html' : rota);
   } catch (err) {
     console.error('[erro]', err);

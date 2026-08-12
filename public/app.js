@@ -76,9 +76,7 @@ function renderCabecalho() {
 
   // aparece no rodapé e também no aceite da etapa 6
   $$('[data-link-privacidade]').forEach((a) => { a.href = c.links.privacidade; });
-  $('[data-link-instagram]').href = c.links.instagram;
   $('[data-link-site]').href = c.links.site;
-  $('[data-link-email]').href = `mailto:${c.suporte.email}`;
   $('[data-link-whatsapp]').href = c.links.whatsappGrupo;
   $('[data-etapa-total]').textContent = TOTAL;
 }

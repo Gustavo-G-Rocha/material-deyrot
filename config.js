@@ -10,20 +10,20 @@ export const campanha = {
   // ---- Candidatos --------------------------------------------------------
   candidatos: [
     {
-      nome: 'NOME DO CANDIDATO 1',
+      nome: 'Pedro Deyrot',
       cargo: 'Deputado Federal',
-      numero: '00000',
-      foto: '/assets/candidato-1.png', // troque pelo arquivo real em public/assets/
+      numero: '1414',
+      foto: '/assets/pedro-deyrot.png', // coloque o arquivo em public/assets/
     },
     {
-      nome: 'NOME DO CANDIDATO 2',
+      nome: 'Will Rocha',
       cargo: 'Deputado Estadual',
-      numero: '00000',
-      foto: '/assets/candidato-2.png',
+      numero: '14014',
+      foto: '/assets/will-rocha.png',
     },
   ],
 
-  partido: 'SIGLA',
+  partido: 'MISSÃO',
   ano: 2026,
   uf: 'SP',
 
@@ -36,23 +36,22 @@ export const campanha = {
    * um preto mais quente ou mais frio.
    */
   tema: {
-    acento: '#2f7df6',
-    acentoClaro: '#5b9bff',
-    acentoEscuro: '#1b56b8',
-    acentoTinta: '#08111f',   // cor do texto escrito por cima do acento
-    fundo: '#0b0d12',
-    fundo2: '#12151d',
-    fundo3: '#1a1f2b',
-    tinta: '#f2f4f8',
-    tintaFraca: '#a4adbe',
+    acento: '#f5b301',        // amarelo da campanha
+    acentoClaro: '#ffd24a',
+    acentoEscuro: '#c98a00',
+    acentoTinta: '#15100a',   // texto escrito por cima do amarelo: precisa ser escuro
+    fundo: '#0c0b09',
+    fundo2: '#141210',
+    fundo3: '#1d1a15',
+    tinta: '#f6f3ec',
+    tintaFraca: '#b0a99b',
   },
 
   // ---- Links externos ----------------------------------------------------
   links: {
     whatsappGrupo: 'https://chat.whatsapp.com/SEU-LINK-AQUI',
-    instagram: 'https://instagram.com/SEU-PERFIL',
-    site: 'https://seusite.com.br',
-    privacidade: 'https://seusite.com.br/politica-de-privacidade',
+    site: 'https://pedrodeyrot.com/',
+    privacidade: '/privacidade',
     compartilhar:
       'Pedi meu material de campanha pra ajudar na rua. Peça o seu também:',
   },
@@ -72,10 +71,25 @@ export const campanha = {
     // { rotulo: 'Participe', href: 'https://participe.seusite.com.br', nota: 'participe.seusite.com.br' },
   ],
 
-  // ---- Contato de suporte ------------------------------------------------
+  /**
+   * Contato do responsável pelos dados (encarregado / DPO).
+   * A LGPD exige um canal que funcione de verdade para pedidos de acesso,
+   * correção e exclusão — este endereço aparece na política de privacidade.
+   * TROQUE pelo e-mail real antes de publicar.
+   */
   suporte: {
-    email: 'contato@seusite.com.br',
+    email: 'contato@pedrodeyrot.com',
     whatsapp: '+55 11 90000-0000',
+  },
+
+  /**
+   * Identificação do controlador dos dados, exigida pela LGPD (art. 9º).
+   * Preencha com os dados reais do comitê / candidato antes de publicar.
+   */
+  controlador: {
+    nome: 'Comitê Financeiro de Campanha — Pedro Deyrot',
+    cnpj: '00.000.000/0001-00',
+    endereco: 'Endereço completo do comitê, cidade/UF, CEP',
   },
 };
 
