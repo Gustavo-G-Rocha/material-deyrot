@@ -6,8 +6,8 @@ import { configPublica } from './config.js';
 import { validarPedido } from './lib/validacao.js';
 import { calcularEngajamento, kitRecomendado, kitPorSlug } from './lib/scoring.js';
 import {
-  migrar, criarPedido, listarPedidos, contarPedidos, atualizarStatus,
-  exportarCsv, fecharBanco,
+  temBanco, descreverConexao, esperarBanco, migrar, criarPedido, listarPedidos,
+  contarPedidos, atualizarStatus, exportarCsv, fecharBanco,
 } from './lib/db.js';
 
 const PORTA = Number(process.env.PORT) || 3000;
@@ -283,12 +283,31 @@ async function iniciar() {
     return;
   }
 
+  if (!temBanco) {
+    console.error('\n  ERRO: a variável DATABASE_URL não está definida neste serviço.');
+    console.error('');
+    console.error('  No Railway, criar o Postgres NÃO injeta a variável no app —');
+    console.error('  são serviços separados. No serviço do site, adicione:');
+    console.error('');
+    console.error('      DATABASE_URL = ${{Postgres.DATABASE_URL}}');
+    console.error('');
+    console.error('  (troque "Postgres" pelo nome exato do serviço do banco)');
+    console.error('  Para só ver o layout, sem banco: npm run preview\n');
+    process.exit(1);
+  }
+
+  console.log(`\n  Conectando em ${descreverConexao()}`);
+
   try {
+    await esperarBanco();
     await migrar();
   } catch (err) {
     console.error('\n  Não consegui conectar no Postgres.');
     console.error('  Motivo:', descreverErroBanco(err));
-    console.error('  Confira a DATABASE_URL e se o banco está de pé.\n');
+    console.error('  Alvo:  ', descreverConexao());
+    console.error('');
+    console.error('  Se o host termina em .railway.internal, confirme que o app e o');
+    console.error('  banco estão no mesmo projeto e ambiente do Railway.\n');
     process.exit(1);
   }
 
