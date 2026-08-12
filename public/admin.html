@@ -4,35 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Painel · Pedidos de material</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css">
   <style>
-    body { background: var(--fundo-alt); }
     .painel { padding: 2rem 0 4rem; }
-    .painel-cabeca { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-    .cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    .cartao { background: #fff; border: 1px solid var(--borda); border-radius: 12px; padding: 1.1rem 1.2rem; }
-    .cartao .n { font-size: 1.9rem; font-weight: 800; letter-spacing: -.03em; }
-    .cartao .r { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--tinta-suave); font-weight: 700; }
-    .cartao .d { font-size: .85rem; color: var(--tinta-suave); margin-top: .4rem; }
-    .tabela-caixa { background: #fff; border: 1px solid var(--borda); border-radius: 12px; overflow-x: auto; }
-    table { border-collapse: collapse; width: 100%; font-size: .88rem; white-space: nowrap; }
-    th, td { padding: .7rem .9rem; text-align: left; border-bottom: 1px solid var(--borda); }
-    th { background: var(--fundo-alt); font-size: .74rem; text-transform: uppercase; letter-spacing: .07em; color: var(--tinta-suave); position: sticky; top: 0; }
+    .painel-cabeca { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; margin-bottom: 1.6rem; }
+    .painel-cabeca h1 { font-family: var(--fonte-titulo); font-size: 1.8rem; text-transform: uppercase; letter-spacing: .5px; }
+    .painel-cabeca .sub { color: var(--tinta-fraca); font-size: .88rem; margin-top: .25rem; }
+
+    .cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 1rem; margin-bottom: 1.6rem; }
+    .cartao { background: var(--fundo-2); border: 1px solid var(--linha-fraca); border-radius: var(--raio); padding: 1.2rem 1.3rem; }
+    .cartao .n { font-family: var(--fonte-titulo); font-size: 2.1rem; line-height: 1; color: var(--acento-claro); }
+    .cartao .r { font-family: var(--fonte-cond); font-size: .74rem; text-transform: uppercase; letter-spacing: .1em; color: var(--tinta-fraca); margin-bottom: .5rem; }
+    .cartao .d { font-size: .84rem; color: var(--tinta-fraca); }
+
+    .filtros { display: flex; gap: .8rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; font-size: .85rem; color: var(--tinta-fraca); }
+
+    .tabela-caixa { background: var(--fundo-2); border: 1px solid var(--linha-fraca); border-radius: var(--raio); overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .86rem; white-space: nowrap; }
+    th, td { padding: .75rem .9rem; text-align: left; border-bottom: 1px solid var(--linha-fraca); }
+    th {
+      position: sticky; top: 0; background: var(--fundo-3);
+      font-family: var(--fonte-cond); font-size: .72rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .08em; color: var(--tinta-fraca);
+    }
     tr:last-child td { border-bottom: 0; }
-    tbody tr:hover { background: rgba(27,77,216,.03); }
-    .pill { display: inline-block; padding: .15rem .55rem; border-radius: 999px; font-size: .75rem; font-weight: 700; background: var(--fundo-alt); border: 1px solid var(--borda); }
-    .nota { font-weight: 800; color: var(--primaria); }
-    select.status { font: inherit; font-size: .82rem; padding: .25rem .4rem; border: 1px solid var(--borda); border-radius: 6px; background: #fff; }
-    .filtros { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
-    .aviso { background: #fff; border: 1px solid var(--borda); border-radius: 12px; padding: 2rem; text-align: center; }
+    tbody tr:hover { background: var(--veu-1); }
+
+    .pill {
+      display: inline-block; padding: .18rem .6rem; border-radius: 999px;
+      font-family: var(--fonte-cond); font-size: .74rem; letter-spacing: .04em;
+      text-transform: uppercase; background: var(--veu-2); border: 1px solid var(--linha);
+      color: var(--acento-claro);
+    }
+    .nota { font-family: var(--fonte-titulo); font-size: 1.05rem; color: var(--acento-claro); }
+
+    select.status {
+      font-family: var(--fonte-corpo); font-size: .8rem; padding: .3rem .45rem;
+      border: 1px solid var(--linha-fraca); border-radius: 6px;
+      background: var(--fundo-3); color: var(--tinta);
+    }
+    .aviso { background: var(--fundo-2); border: 1px solid var(--linha-fraca); border-radius: var(--raio); padding: 2.5rem; text-align: center; color: var(--tinta-fraca); }
+    .aviso h2 { font-family: var(--fonte-titulo); text-transform: uppercase; color: var(--tinta); margin-bottom: .6rem; }
+    .aviso code { background: var(--fundo-3); padding: .12rem .4rem; border-radius: 4px; color: var(--acento-claro); }
   </style>
 </head>
 <body>
 <div class="wrap painel">
   <div class="painel-cabeca">
     <div>
-      <h1 style="font-size:1.6rem;margin:0">Pedidos de material</h1>
-      <p style="margin:.2rem 0 0;color:var(--tinta-suave);font-size:.9rem">Ordenado por engajamento — quem rende mais aparece primeiro.</p>
+      <h1>Pedidos de material</h1>
+      <p class="sub">Ordenado por engajamento — quem rende mais aparece primeiro.</p>
     </div>
     <div style="display:flex;gap:.6rem">
       <button class="btn btn-vazado btn-sm" id="recarregar">Atualizar</button>

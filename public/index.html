@@ -5,24 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Peça seu material de campanha</title>
   <meta name="description" content="Peça gratuitamente o kit de material de campanha e ajude na divulgação na sua rua, no seu bairro e na sua cidade.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/theme.css">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 
-<header class="topo">
+<header class="topo" data-topo>
   <div class="wrap topo-inner">
     <a class="marca" href="/">
       <span class="marca-nome" data-campanha-titulo>Material de Campanha</span>
     </a>
-    <nav class="topo-nav">
-      <span data-menu></span>
+    <div class="topo-acoes">
       <a class="btn btn-primario btn-sm" href="#pedir">Pedir material</a>
-    </nav>
+      <button class="menu-btn" data-menu-btn aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </div>
 </header>
 
+<!-- painel lateral com os outros portais da campanha -->
+<div class="portais-veu" data-portais-veu hidden></div>
+<aside class="portais" data-portais aria-hidden="true">
+  <div class="portais-cabeca">
+    <span class="portais-titulo">Navegue</span>
+    <button class="portais-fechar" data-portais-fechar aria-label="Fechar menu">✕</button>
+  </div>
+  <ul class="portais-lista" data-portais-lista></ul>
+</aside>
+
 <!-- ================= 1. HERO ================= -->
 <section class="hero">
+  <div class="hero-fundo"></div>
+  <div class="hero-brilho"></div>
+  <div class="hero-grao"></div>
+
   <div class="wrap hero-inner">
     <div class="hero-texto">
       <p class="olho">Campanha <span data-ano></span> · <span data-partido></span></p>
@@ -61,7 +83,6 @@
       </div>
 
       <form id="form-pedido" novalidate>
-        <!-- honeypot anti-bot -->
         <div class="hp" aria-hidden="true">
           <label>Não preencha este campo <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
         </div>
@@ -237,7 +258,7 @@
 </section>
 
 <!-- ================= 3. ADESIVO ================= -->
-<section id="adesivo" class="secao secao-alt">
+<section id="adesivo" class="secao">
   <div class="wrap adesivo-inner">
     <div class="adesivo-img">
       <div class="placeholder-img">
@@ -262,21 +283,21 @@
 </section>
 
 <!-- ================= 4. KITS ================= -->
-<section id="kits" class="secao">
+<section id="kits" class="secao secao-alt">
   <div class="wrap">
     <header class="secao-cabeca">
       <h2>Um kit para cada ritmo</h2>
       <p>Não precisa se comprometer com mais do que você dá conta. Comece por onde der e peça mais depois.</p>
     </header>
     <div class="grade-kits" data-kits-vitrine></div>
-    <p class="centro" style="margin-top:2rem">
+    <p class="centro" style="margin-top:36px">
       <a class="btn btn-primario btn-lg" href="#pedir">Descobrir meu kit</a>
     </p>
   </div>
 </section>
 
 <!-- ================= 5. COMO FUNCIONA ================= -->
-<section id="como-funciona" class="secao secao-alt">
+<section id="como-funciona" class="secao">
   <div class="wrap">
     <header class="secao-cabeca">
       <h2>Como funciona</h2>
@@ -302,8 +323,8 @@
 </section>
 
 <!-- ================= 6. FECHAMENTO ================= -->
-<section class="secao secao-cta">
-  <div class="wrap wrap-estreito centro">
+<section class="secao secao-alt secao-cta">
+  <div class="wrap wrap-estreito">
     <h2>Eleição se ganha na rua</h2>
     <p>Cada panfleto entregue por alguém conhecido vale mais do que qualquer anúncio. Peça o seu e comece hoje.</p>
     <a class="btn btn-destaque btn-lg" href="#pedir">Pedir meu material</a>
@@ -311,8 +332,8 @@
 </section>
 
 <footer class="rodape">
-  <div class="wrap rodape-inner">
-    <p data-rodape-campanha></p>
+  <div class="wrap">
+    <p class="rodape-campanha" data-rodape-campanha></p>
     <p class="rodape-links">
       <a data-link-privacidade target="_blank" rel="noopener">Política de Privacidade</a>
       <a data-link-instagram target="_blank" rel="noopener">Instagram</a>

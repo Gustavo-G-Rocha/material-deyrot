@@ -31,14 +31,24 @@ async function init() {
   mostrarEtapa(1);
 }
 
-function aplicarTema(t) {
+/** config.js usa camelCase; o CSS usa kebab-case. */
+const TOKENS = {
+  acento: '--acento',
+  acentoClaro: '--acento-claro',
+  acentoEscuro: '--acento-escuro',
+  acentoTinta: '--acento-tinta',
+  fundo: '--fundo',
+  fundo2: '--fundo-2',
+  fundo3: '--fundo-3',
+  tinta: '--tinta',
+  tintaFraca: '--tinta-fraca',
+};
+
+function aplicarTema(tema = {}) {
   const raiz = document.documentElement;
-  raiz.style.setProperty('--primaria', t.primaria);
-  raiz.style.setProperty('--primaria-escura', t.primariaEscura);
-  raiz.style.setProperty('--destaque', t.destaque);
-  raiz.style.setProperty('--tinta', t.tinta);
-  raiz.style.setProperty('--fundo', t.fundo);
-  raiz.style.setProperty('--fundo-alt', t.fundoAlt);
+  for (const [chave, variavel] of Object.entries(TOKENS)) {
+    if (tema[chave]) raiz.style.setProperty(variavel, tema[chave]);
+  }
 }
 
 // ---------- renderização a partir da config -------------------------------
@@ -53,9 +63,16 @@ function renderCabecalho() {
 
   $('[data-rodape-campanha]').textContent =
     `${nomes} — ${c.partido} · Campanha ${c.ano}`;
-  $('[data-menu]').innerHTML = (c.menu || []).map((m) => `
-    <a href="${esc(m.href)}"${m.externo ? ' target="_blank" rel="noopener"' : ''}>${esc(m.rotulo)}</a>
-  `).join('');
+  $('[data-portais-lista]').innerHTML = (c.menu || []).map((m) => {
+    const externo = /^https?:/i.test(m.href);
+    return `<li>
+      <a class="portais-link${m.atual ? ' atual' : ''}" href="${esc(m.href)}"
+         ${externo ? 'target="_blank" rel="noopener"' : ''}>
+        <span class="portais-link-nome">${esc(m.rotulo)}</span>
+        ${m.nota ? `<span class="portais-link-url">${esc(m.nota)}</span>` : ''}
+      </a>
+    </li>`;
+  }).join('');
 
   // aparece no rodapé e também no aceite da etapa 6
   $$('[data-link-privacidade]').forEach((a) => { a.href = c.links.privacidade; });
@@ -212,6 +229,62 @@ function ligarEventos() {
   $('#cep').addEventListener('blur', buscarCep);
 
   $('[data-compartilhar]').addEventListener('click', compartilhar);
+
+  ligarTopo();
+  ligarPortais();
+}
+
+/** O cabeçalho encolhe e ganha fundo depois dos primeiros pixels de rolagem. */
+function ligarTopo() {
+  const topo = $('[data-topo]');
+  let ticking = false;
+
+  const atualizar = () => {
+    topo.classList.toggle('encolhido', window.scrollY > 30);
+    ticking = false;
+  };
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(atualizar); }
+  }, { passive: true });
+
+  atualizar();
+}
+
+/** Painel lateral: hambúrguer, véu, ESC e clique num link fecham. */
+function ligarPortais() {
+  const painel = $('[data-portais]');
+  const veu = $('[data-portais-veu]');
+  const botao = $('[data-menu-btn]');
+
+  const abrir = () => {
+    veu.hidden = false;
+    requestAnimationFrame(() => veu.classList.add('visivel'));
+    painel.classList.add('aberto');
+    painel.setAttribute('aria-hidden', 'false');
+    botao.classList.add('aberto');
+    botao.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('portais-abertos');
+  };
+
+  const fechar = () => {
+    veu.classList.remove('visivel');
+    setTimeout(() => { veu.hidden = true; }, 250);
+    painel.classList.remove('aberto');
+    painel.setAttribute('aria-hidden', 'true');
+    botao.classList.remove('aberto');
+    botao.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('portais-abertos');
+  };
+
+  botao.addEventListener('click', () =>
+    painel.classList.contains('aberto') ? fechar() : abrir());
+  veu.addEventListener('click', fechar);
+  $('[data-portais-fechar]').addEventListener('click', fechar);
+  painel.addEventListener('click', (e) => { if (e.target.closest('a')) fechar(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && painel.classList.contains('aberto')) fechar();
+  });
 }
 
 function mascara(sel, fn) {

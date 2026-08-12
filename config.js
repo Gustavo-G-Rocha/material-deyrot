@@ -27,14 +27,24 @@ export const campanha = {
   ano: 2026,
   uf: 'SP',
 
-  // ---- Identidade visual -------------------------------------------------
+  /**
+   * Identidade visual — tema escuro com uma cor de destaque.
+   *
+   * Na prática você só precisa mexer em `acento`: todo o resto do site
+   * (botões, bordas, brilho do topo, selos, foco dos campos) é derivado
+   * dele por color-mix no theme.css. Os fundos só mudam se você quiser
+   * um preto mais quente ou mais frio.
+   */
   tema: {
-    primaria: '#1b4dd8',
-    primariaEscura: '#12369b',
-    destaque: '#ffc233',
-    tinta: '#0f1524',
-    fundo: '#ffffff',
-    fundoAlt: '#f4f6fb',
+    acento: '#2f7df6',
+    acentoClaro: '#5b9bff',
+    acentoEscuro: '#1b56b8',
+    acentoTinta: '#08111f',   // cor do texto escrito por cima do acento
+    fundo: '#0b0d12',
+    fundo2: '#12151d',
+    fundo3: '#1a1f2b',
+    tinta: '#f2f4f8',
+    tintaFraca: '#a4adbe',
   },
 
   // ---- Links externos ----------------------------------------------------
@@ -48,16 +58,18 @@ export const campanha = {
   },
 
   /**
-   * Menu do topo — portais irmãos da campanha.
-   * Remova, renomeie ou acrescente à vontade; o menu é montado a partir daqui.
+   * Painel lateral do menu. Mistura âncoras desta página com os outros
+   * portais da campanha. `nota` é a linha cinza embaixo do nome;
+   * `atual: true` destaca o item da página em que a pessoa já está.
    */
   menu: [
-    { rotulo: 'Kits', href: '#kits' },
-    { rotulo: 'Como funciona', href: '#como-funciona' },
-    { rotulo: 'Adesivo', href: '#adesivo' },
-    // Exemplos de subdomínios da campanha:
-    // { rotulo: 'Eventos', href: 'https://eventos.seusite.com.br', externo: true },
-    // { rotulo: 'Participe', href: 'https://participe.seusite.com.br', externo: true },
+    { rotulo: 'Peça seu material', href: '#pedir', nota: 'Você está aqui', atual: true },
+    { rotulo: 'Kits disponíveis', href: '#kits', nota: 'Os quatro tamanhos' },
+    { rotulo: 'Adesivo de carro', href: '#adesivo', nota: 'Vidro traseiro perfurado' },
+    { rotulo: 'Como funciona', href: '#como-funciona', nota: 'Do pedido à entrega' },
+    // Outros portais da campanha, se houver:
+    // { rotulo: 'Eventos', href: 'https://eventos.seusite.com.br', nota: 'eventos.seusite.com.br' },
+    // { rotulo: 'Participe', href: 'https://participe.seusite.com.br', nota: 'participe.seusite.com.br' },
   ],
 
   // ---- Contato de suporte ------------------------------------------------

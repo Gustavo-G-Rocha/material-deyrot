@@ -64,6 +64,16 @@ candidato escrito. Edite lá:
 
 As imagens vão em [public/assets/](public/assets/) (veja o LEIA-ME de lá).
 
+### Trocar a cor da campanha
+
+Mexa em `campanha.tema.acento` no [config.js](config.js) e pronto — botões,
+bordas, brilho do topo, selos, foco dos campos e barra de progresso acompanham.
+Isso funciona porque [public/theme.css](public/theme.css) não tem cor literal
+fora do `:root`: os tons derivados saem de `color-mix()` sobre `--acento`.
+
+Os outros tokens (`acentoClaro`, `acentoEscuro`, `acentoTinta`) só valem a pena
+ajustar se o contraste do gradiente ou do texto sobre a cor não ficar bom.
+
 ## Estrutura
 
 ```
@@ -74,7 +84,8 @@ lib/validacao.js       validação e normalização do formulário
 lib/scoring.js         nota de engajamento e recomendação de kit
 public/index.html      landing + formulário
 public/app.js          formulário multi-etapas (renderizado a partir da config)
-public/styles.css      estilos
+public/theme.css       tokens, botões, cabeçalho, painel de menu e rodapé
+public/styles.css      componentes da página (hero, kits, formulário, revisão)
 public/admin.html      painel administrativo
 railway.json           build, start e healthcheck do Railway
 .env.example           modelo das variáveis de ambiente
