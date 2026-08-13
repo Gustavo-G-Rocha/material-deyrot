@@ -1,14 +1,19 @@
-Coloque aqui as imagens da campanha (use fotos e artes suas, com direito de uso):
+Imagens da campanha.
 
-  candidato-1.png      foto do primeiro candidato (quadrada, 400x400 ou maior)
-  candidato-2.png      foto do segundo candidato
-  adesivo-carro.jpg    foto do adesivo aplicado no vidro traseiro
+Arquivos em uso:
 
-Os caminhos das fotos dos candidatos são definidos em config.js
-(campanha.candidatos[].foto). A foto do adesivo está no bloco
-.placeholder-img em public/index.html — troque a div por:
+  deyrot.jpeg   foto do Pedro Deyrot   (1080x1080)
+  will.jpeg     foto do Will Rocha     (668x700)
 
-  <img src="/assets/adesivo-carro.jpg" alt="Adesivo aplicado no vidro traseiro">
+Os caminhos são definidos em config.js, em campanha.candidatos[].foto.
+Para trocar uma foto, substitua o arquivo mantendo o nome, ou aponte o
+novo nome no config.
 
-Enquanto não houver imagem, aparecem as iniciais do candidato e um
-placeholder tracejado no lugar da foto do adesivo.
+Enquadramento: as fotos aparecem em recorte circular de 78px, com zoom de
+112% e ponto vertical em 28% da altura — os dois valores ficam na regra
+.cartao-candidato .foto, em styles.css. Fotos aproximadamente quadradas
+funcionam melhor; em retratos muito altos, baixe o percentual vertical.
+
+A ilustração do carro com o adesivo NÃO é imagem: é um SVG desenhado em
+public/app.js (renderIlustracaoCarro), com os nomes vindos do config.
+Não é preciso arquivo de foto para ela.

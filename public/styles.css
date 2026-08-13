@@ -28,13 +28,14 @@
   border-radius: var(--raio); padding: 16px; box-shadow: var(--sombra-sm);
 }
 /*
- * As fotos chegam em formatos diferentes — retrato em fundo claro, quadrada
- * com fundo já recortado. O corte circular com `cover` normaliza as duas, e o
- * enquadramento em 22% da altura mantém o rosto centralizado em vez do tronco.
+ * As duas fotos são quase quadradas, então o corte circular sozinho quase não
+ * recorta nada e sobra margem em volta do rosto. O zoom de 112% come essa
+ * margem, e o ponto em 28% da altura sobe o enquadramento para o rosto.
+ * Se algum rosto ficar torto, é só mexer nesses dois valores.
  */
 .cartao-candidato .foto {
   width: 78px; height: 78px; flex: 0 0 78px; border-radius: 50%;
-  background: var(--fundo-3) center 22% / cover no-repeat;
+  background: var(--fundo-3) center 28% / 112% no-repeat;
   border: 2px solid var(--acento);
   box-shadow: 0 0 0 4px var(--veu-2);
   display: grid; place-items: center;

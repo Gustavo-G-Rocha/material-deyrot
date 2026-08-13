@@ -13,13 +13,13 @@ export const campanha = {
       nome: 'Pedro Deyrot',
       cargo: 'Deputado Federal',
       numero: '1414',
-      foto: '/assets/pedro-deyrot.png', // coloque o arquivo em public/assets/
+      foto: '/assets/deyrot.jpeg',
     },
     {
       nome: 'Will Rocha',
       cargo: 'Deputado Estadual',
       numero: '14014',
-      foto: '/assets/will-rocha.png',
+      foto: '/assets/will.jpeg',
     },
   ],
 
