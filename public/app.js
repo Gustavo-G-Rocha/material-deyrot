@@ -85,7 +85,8 @@ function renderCabecalho() {
 function renderCandidatos() {
   $('[data-candidatos]').innerHTML = CFG.campanha.candidatos.map((c) => `
     <div class="cartao-candidato">
-      <div class="foto" style="background-image:url('${esc(c.foto)}')">${esc(iniciais(c.nome))}</div>
+      <div class="foto" style="background-image:url('${esc(c.foto)}')"
+           >${c.foto ? '' : esc(iniciais(c.nome))}</div>
       <div>
         <div class="nome">${esc(c.nome)}</div>
         <div class="cargo">${esc(c.cargo)}</div>
@@ -142,11 +143,24 @@ function renderIlustracaoCarro() {
     <rect width="560" height="390" fill="url(#brilhoAmbiente)"/>
 
     <!-- sombra no chão -->
-    <ellipse cx="280" cy="345" rx="205" ry="17" fill="#000" opacity=".45"/>
+    <ellipse cx="280" cy="358" rx="200" ry="16" fill="#000" opacity=".45"/>
 
-    <!-- rodas -->
-    <rect x="118" y="300" width="52" height="34" rx="9" fill="#0d0c0a"/>
-    <rect x="390" y="300" width="52" height="34" rx="9" fill="#0d0c0a"/>
+    <!--
+      Rodas: desenhadas antes da carroceria, que cobre a metade de cima e dá
+      o encaixe na caixa de roda. Precisam descer bem abaixo de y=328, que é
+      onde termina a lataria, senão somem atrás dela.
+    -->
+    <g>
+      <rect x="126" y="302" width="56" height="52" rx="11" fill="#0a0908"/>
+      <rect x="134" y="316" width="40" height="30" rx="7" fill="#1c1a17"/>
+      <rect x="126" y="302" width="56" height="52" rx="11" fill="none"
+            stroke="var(--acento)" stroke-opacity=".16" stroke-width="1.2"/>
+
+      <rect x="378" y="302" width="56" height="52" rx="11" fill="#0a0908"/>
+      <rect x="386" y="316" width="40" height="30" rx="7" fill="#1c1a17"/>
+      <rect x="378" y="302" width="56" height="52" rx="11" fill="none"
+            stroke="var(--acento)" stroke-opacity=".16" stroke-width="1.2"/>
+    </g>
 
     <!-- carroceria -->
     <path d="M 112 318
