@@ -203,7 +203,7 @@ body.portais-abertos { overflow: hidden; }
       color-mix(in srgb, var(--fundo) 25%, transparent) 0%,
       color-mix(in srgb, var(--fundo) 80%, transparent) 42%,
       var(--fundo) 72%),
-    url("/assets/chapa-oficial.jpg") center 15% / cover no-repeat;
+    url("/assets/chapa-oficial.png") center 15% / cover no-repeat;
 }
 
 /* ---------- tipografia de seção ---------- */
