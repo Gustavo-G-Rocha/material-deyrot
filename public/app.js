@@ -83,7 +83,9 @@ function renderCabecalho() {
 }
 
 function renderCandidatos() {
-  $('[data-candidatos]').innerHTML = CFG.campanha.candidatos.map((c) => `
+  const alvo = $('[data-candidatos]');
+  if (!alvo) return;
+  alvo.innerHTML = CFG.campanha.candidatos.map((c) => `
     <div class="cartao-candidato">
       <div class="foto" style="background-image:url('${esc(c.foto)}')"
            >${c.foto ? '' : esc(iniciais(c.nome))}</div>

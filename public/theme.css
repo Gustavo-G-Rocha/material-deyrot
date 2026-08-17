@@ -199,23 +199,11 @@ body.portais-abertos { overflow: hidden; }
 .hero-fundo {
   position: absolute; inset: 0; z-index: 0;
   background:
-    radial-gradient(circle at 50% 0%, var(--fundo-3) 0%, var(--fundo) 55%),
-    var(--fundo);
-}
-.hero-brilho {
-  position: absolute; top: -10%; left: 50%; transform: translateX(-50%);
-  width: 120vw; height: 80vh; z-index: 0; pointer-events: none;
-  background: radial-gradient(ellipse at center,
-              color-mix(in srgb, var(--acento) 22%, transparent), transparent 62%);
-  filter: blur(20px);
-  animation: pulsar 7s ease-in-out infinite;
-}
-@keyframes pulsar { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
-
-.hero-grao {
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  opacity: .05; mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23r)'/%3E%3C/svg%3E");
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--fundo) 25%, transparent) 0%,
+      color-mix(in srgb, var(--fundo) 80%, transparent) 42%,
+      var(--fundo) 72%),
+    url("/assets/chapa-oficial.jpg") center 15% / cover no-repeat;
 }
 
 /* ---------- tipografia de seção ---------- */
