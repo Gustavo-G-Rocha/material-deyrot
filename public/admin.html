@@ -87,6 +87,40 @@
     .btn-nota:hover { color: var(--tinta); }
     select.status.rev-suspeito { border-color: rgba(255, 90, 90, .6); color: #ffb4b4; }
     select.status.rev-aprovado { border-color: var(--acento); color: var(--acento-claro); }
+
+    /* quantidades a despachar */
+    .envio-resumo { font-size: .8rem; color: var(--tinta-fraca); }
+    .envio-resumo b { color: var(--tinta); font-weight: 600; }
+    .btn-envio {
+      font: inherit; font-size: .75rem; cursor: pointer; padding: .2rem .5rem; margin-right: .4rem;
+      background: var(--fundo-3); color: var(--tinta); border: 1px solid var(--linha-fraca); border-radius: 5px;
+    }
+    .btn-envio:hover { border-color: var(--acento); }
+    .btn-envio.editado { border-color: var(--acento); color: var(--acento-claro); }
+
+    dialog.caixa {
+      border: 1px solid var(--linha); border-radius: var(--raio); padding: 0;
+      background: var(--fundo-2); color: var(--tinta); max-width: 420px; width: 92vw;
+    }
+    dialog.caixa::backdrop { background: rgba(0, 0, 0, .6); }
+    dialog.caixa h3 { font-family: var(--fonte-titulo); text-transform: uppercase; font-size: 1.1rem; }
+    .caixa-topo { padding: 1.2rem 1.3rem .6rem; }
+    .caixa-topo .d { color: var(--tinta-fraca); font-size: .84rem; margin-top: .2rem; }
+    .caixa-itens { padding: .4rem 1.3rem 1rem; display: grid; gap: .55rem; }
+    .caixa-item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .caixa-item label { font-size: .88rem; }
+    .caixa-item .padrao { color: var(--tinta-suave); font-size: .75rem; }
+    .caixa-item input {
+      width: 5.5rem; padding: .4rem .5rem; font: inherit; text-align: right;
+      background: var(--fundo-3); color: var(--tinta);
+      border: 1px solid var(--linha-fraca); border-radius: 6px;
+    }
+    .caixa-item input:focus { outline: 2px solid var(--acento); outline-offset: 1px; }
+    .caixa-pe {
+      display: flex; gap: .6rem; justify-content: flex-end; align-items: center;
+      padding: .9rem 1.3rem; border-top: 1px solid var(--linha-fraca); background: var(--fundo-3);
+    }
+    .caixa-pe .esq { margin-right: auto; }
   </style>
 </head>
 <body>
@@ -126,6 +160,21 @@
   </form>
 </div>
 
+<dialog class="caixa" id="dlg-envio">
+  <form method="dialog" id="form-envio">
+    <div class="caixa-topo">
+      <h3>O que vai ser enviado</h3>
+      <p class="d" id="envio-quem"></p>
+    </div>
+    <div class="caixa-itens" id="envio-itens"></div>
+    <div class="caixa-pe">
+      <button type="button" class="btn-envio esq" id="envio-padrao">Voltar ao padrão do kit</button>
+      <button type="button" class="btn btn-vazado btn-sm" id="envio-cancelar">Cancelar</button>
+      <button type="submit" class="btn btn-primario btn-sm">Salvar</button>
+    </div>
+  </form>
+</dialog>
+
 <script type="module">
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -136,6 +185,10 @@ const ORDEM_KIT = ['p', 'm', 'g'];
 
 let filtroStatus = '';
 let filtroRevisao = '';
+
+// Catálogo de itens (vem do servidor junto da lista) e o pedido aberto no editor.
+let CATALOGO = [];
+let editando = null;
 
 // No banco fica o valor cru do formulário; aqui vira algo legível na tabela.
 const ROTULOS = {
@@ -199,6 +252,10 @@ $('#sair').addEventListener('click', async () => {
   await fetch('/api/admin/logout', { method: 'POST' });
   mostrarEntrada();
 });
+
+$('#form-envio').addEventListener('submit', salvarEnvio);
+$('#envio-cancelar').addEventListener('click', () => $('#dlg-envio').close());
+$('#envio-padrao').addEventListener('click', () => gravarEnvio(editando.id, null));
 
 iniciar();
 
@@ -271,8 +328,61 @@ async function carregar() {
     return;
   }
 
-  const { resumo, pedidos } = await r.json();
+  const { resumo, pedidos, itens } = await r.json();
+  CATALOGO = itens || [];
   render(resumo, pedidos);
+}
+
+// --- quantidades a despachar ---------------------------------------------
+
+/** Resumo curto para caber na célula; o detalhe vai no title. */
+function resumoEnvio(p) {
+  const envio = p.envio_efetivo || {};
+  const total = Object.values(envio).reduce((s, n) => s + n, 0);
+  const detalhe = CATALOGO
+    .filter(i => envio[i.slug] > 0)
+    .map(i => `${envio[i.slug]} ${i.rotulo}`)
+    .join('\n') || 'Nada a enviar';
+  return { total, detalhe };
+}
+
+function abrirEnvio(p) {
+  editando = p;
+  $('#envio-quem').textContent = `Pedido #${p.id} · ${p.nome} · kit ${String(p.kit).toUpperCase()}`;
+
+  $('#envio-itens').innerHTML = CATALOGO.map(item => {
+    const atual = p.envio_efetivo?.[item.slug] ?? 0;
+    const padrao = p.envio_padrao?.[item.slug] ?? 0;
+    return `<div class="caixa-item">
+      <label for="env-${item.slug}">${esc(item.rotulo)}
+        <span class="padrao">${atual === padrao ? '' : `padrão: ${padrao}`}</span>
+      </label>
+      <input type="number" id="env-${item.slug}" data-slug="${item.slug}"
+             min="0" max="999" step="1" value="${atual}">
+    </div>`;
+  }).join('');
+
+  $('#dlg-envio').showModal();
+}
+
+async function salvarEnvio(evento) {
+  evento.preventDefault();
+  const envio = {};
+  document.querySelectorAll('#envio-itens input[data-slug]').forEach(campo => {
+    envio[campo.dataset.slug] = Math.max(0, Math.min(999, Number(campo.value) || 0));
+  });
+  await gravarEnvio(editando.id, envio);
+}
+
+async function gravarEnvio(id, envio) {
+  const r = await fetch('/api/admin/envio', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id, envio }),
+  });
+  $('#dlg-envio').close();
+  if (r.status === 401) return mostrarEntrada();
+  carregar();
 }
 
 function render(resumo, pedidos) {
@@ -327,14 +437,14 @@ function render(resumo, pedidos) {
             <th>Nome</th><th>WhatsApp</th><th>E-mail</th>
             <th>CEP</th><th>Cidade/UF</th><th>Bairro</th><th>Endereço</th><th>Nº</th><th>Compl.</th>
             <th>Carro</th><th>Moto</th><th>Contato</th>
-            <th>Kit</th><th>Kit sugerido</th>
+            <th>Kit</th><th>Kit sugerido</th><th>Vai enviar</th>
             <th>Tempo</th><th>Alcance</th><th>Distribui</th><th>Condomínio</th><th>Unidades</th>
             <th>LGPD</th>
           </tr>
         </thead>
         <tbody>
           ${pedidos.map(linha).join('')
-            || '<tr><td colspan="27" style="text-align:center;padding:2rem;color:var(--tinta-suave)">Nenhum pedido ainda.</td></tr>'}
+            || '<tr><td colspan="28" style="text-align:center;padding:2rem;color:var(--tinta-suave)">Nenhum pedido ainda.</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -357,6 +467,12 @@ function render(resumo, pedidos) {
 
   document.querySelectorAll('[data-revisao-id]').forEach(sel => {
     sel.addEventListener('change', () => salvarRevisao(Number(sel.dataset.revisaoId), sel.value));
+  });
+
+  document.querySelectorAll('[data-envio-id]').forEach(botao => {
+    botao.addEventListener('click', () => {
+      abrirEnvio(pedidos.find(p => p.id === Number(botao.dataset.envioId)));
+    });
   });
 
   document.querySelectorAll('[data-nota-id]').forEach(botao => {
@@ -383,6 +499,7 @@ async function salvarRevisao(id, revisao, observacoes) {
 
 function linha(p) {
   const marcas = sinaisDe(p);
+  const envio = resumoEnvio(p);
   const classe = p.revisao === 'suspeito' ? 'linha-suspeita'
     : p.revisao === 'aprovado' ? 'linha-aprovada' : '';
 
@@ -422,6 +539,13 @@ function linha(p) {
     <td>${p.adesivo_carro === 'quero' ? '<span class="pill alerta">necessita contato</span>' : '—'}</td>
     <td><span class="pill">${esc(p.kit)}</span></td>
     <td>${esc(p.kit_recomendado)}</td>
+    <td>
+      <button class="btn-envio ${p.envio_editado ? 'editado' : ''}" data-envio-id="${p.id}"
+              title="Editar as quantidades que vão ser despachadas">✎</button>
+      <span class="envio-resumo" title="${esc(envio.detalhe)}">
+        <b>${envio.total}</b> ${p.envio_editado ? 'ajustado' : 'padrão'}
+      </span>
+    </td>
     <td>${esc(rot(p.disponibilidade))}</td>
     <td>${esc(rot(p.contatos))}</td>
     <td>${esc(rot(p.distribuidores))}</td>

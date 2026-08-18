@@ -109,9 +109,9 @@ export const kits = [
     pontos: 0,
     faixa: '4 a 6 pontos',
     itens: [
-      { qtd: 10, item: 'santões' },
-      { qtd: 10, item: 'colinhas' },
-      { qtd: 3, item: 'praguinhas de celular' },
+      { qtd: 10, item: 'santões', slug: 'santoes' },
+      { qtd: 10, item: 'colinhas', slug: 'colinhas' },
+      { qtd: 3, item: 'praguinhas de celular', slug: 'praguinhas' },
     ],
   },
   {
@@ -121,11 +121,11 @@ export const kits = [
     pontos: 7,
     faixa: '7 a 9 pontos',
     itens: [
-      { qtd: 30, item: 'santões' },
-      { qtd: 30, item: 'colinhas' },
-      { qtd: 5, item: 'praguinhas de celular' },
-      { qtd: 3, item: 'pragões' },
-      { qtd: 1, item: 'parachoque' },
+      { qtd: 30, item: 'santões', slug: 'santoes' },
+      { qtd: 30, item: 'colinhas', slug: 'colinhas' },
+      { qtd: 5, item: 'praguinhas de celular', slug: 'praguinhas' },
+      { qtd: 3, item: 'pragões', slug: 'pragoes' },
+      { qtd: 1, item: 'parachoque', slug: 'parachoques' },
     ],
   },
   {
@@ -135,13 +135,32 @@ export const kits = [
     pontos: 10,
     faixa: '10 a 12 pontos',
     itens: [
-      { qtd: 50, item: 'santões' },
-      { qtd: 50, item: 'colinhas' },
-      { qtd: 5, item: 'praguinhas de celular' },
-      { qtd: 4, item: 'pragões' },
-      { qtd: 2, item: 'parachoques' },
+      { qtd: 50, item: 'santões', slug: 'santoes' },
+      { qtd: 50, item: 'colinhas', slug: 'colinhas' },
+      { qtd: 5, item: 'praguinhas de celular', slug: 'praguinhas' },
+      { qtd: 4, item: 'pragões', slug: 'pragoes' },
+      { qtd: 2, item: 'parachoques', slug: 'parachoques' },
     ],
   },
+];
+
+/**
+ * Catálogo do que pode ser despachado, na ordem em que aparece no painel e
+ * no CSV. Cada `slug` vira uma coluna `env_<slug>` na exportação, que é o
+ * formato que o sistema de logística consome.
+ *
+ * Os `slug` daqui têm que bater com os `slug` dos itens dos kits acima —
+ * é assim que o painel sabe a quantidade padrão de cada pedido. Item novo:
+ * acrescente aqui e nos kits que o usam; nada muda no banco.
+ */
+export const itensEnvio = [
+  { slug: 'santoes', rotulo: 'Santões' },
+  { slug: 'colinhas', rotulo: 'Colinhas' },
+  { slug: 'praguinhas', rotulo: 'Praguinhas de celular' },
+  { slug: 'pragoes', rotulo: 'Pragões' },
+  { slug: 'parachoques', rotulo: 'Parachoques' },
+  { slug: 'adesivo_carro', rotulo: 'Adesivo de carro' },
+  { slug: 'adesivo_moto', rotulo: 'Adesivo de moto' },
 ];
 
 /** Opções dos campos de escolha — usadas no form e validadas no servidor. */

@@ -87,6 +87,7 @@ config.js              configuração da campanha (candidatos, kits, cores, menu
 server.js              servidor HTTP e rotas
 lib/db.js              Postgres: schema, migração, inserção, consultas, CSV
 lib/auth.js            login do painel: hash de senha e cookie de sessão
+lib/envio.js           quantidades a despachar: padrão do kit e ajuste manual
 lib/planilha.js        envia o pedido recém-criado para a planilha do Google
 lib/validacao.js       validação e normalização do formulário
 lib/scoring.js         nota de engajamento e recomendação de kit
@@ -168,6 +169,33 @@ tentativas por IP a cada 10 minutos.
 O `?token=` antigo não abre mais o painel; ele continua valendo só para
 `GET /api/admin/export.csv`, que é como a planilha do Google busca os dados.
 
+### Quantidades a despachar
+
+A coluna **Vai enviar** mostra quantas peças saem no total; o ✎ abre um editor
+com um campo por item, e o que você digitar ali é o que vale — não o que a
+pessoa pediu no formulário. "Voltar ao padrão do kit" desfaz o ajuste.
+
+O padrão de cada pedido é o kit escolhido mais os adesivos que a pessoa quis
+(adesivo só entra com a resposta "quero"). Só o **ajuste** é gravado, numa
+coluna JSONB, e o resto continua saindo do [config.js](config.js) — então mudar
+a composição de um kit reflete em todo pedido que ninguém editou, sem migração.
+
+O catálogo do que existe para despachar é `itensEnvio` no config.js. Item novo:
+acrescente lá e nos kits que o usam; o painel e o CSV se ajustam sozinhos.
+
+### CSV para outro sistema
+
+A exportação troca a coluna JSON `envio` por **uma coluna por item**, já com o
+valor que vale — número puro, sem JSON para interpretar do outro lado:
+
+```
+env_santoes;env_colinhas;env_praguinhas;env_pragoes;env_parachoques;env_adesivo_carro;env_adesivo_moto;envio_editado
+```
+
+`envio_editado` é `sim`/`nao` e diz se alguém mexeu naquele pedido ou se ele
+saiu no padrão do kit. Pedido nunca editado também vem com os números
+preenchidos, então o sistema de destino nunca recebe campo vazio.
+
 ### Conferência antifraude
 
 Cada pedido tem um campo `revisao` — `pendente`, `aprovado` ou `suspeito` — que
@@ -231,6 +259,7 @@ apagada e reescrita a cada sincronização.
 | GET    | `/api/admin/pedidos`     | Lista + resumo (exige login)                 |
 | POST   | `/api/admin/status`      | Muda o status de um pedido (exige login)     |
 | POST   | `/api/admin/revisao`     | Marca a conferência antifraude (exige login) |
+| POST   | `/api/admin/envio`       | Ajusta as quantidades a despachar (exige login) |
 | GET    | `/api/admin/export.csv`  | Exporta tudo em CSV (login ou ADMIN_TOKEN)   |
 
 Proteções já incluídas: validação no servidor (o cliente não é confiável),
