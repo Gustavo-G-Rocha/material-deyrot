@@ -9,6 +9,7 @@ import {
   temBanco, descreverConexao, esperarBanco, migrar, criarPedido, listarPedidos,
   contarPedidos, atualizarStatus, exportarCsv, fecharBanco,
 } from './lib/db.js';
+import { temPlanilha, enviarParaPlanilha } from './lib/planilha.js';
 
 const PORTA = Number(process.env.PORT) || 3000;
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'trocar-este-token';
@@ -188,7 +189,11 @@ const servidor = http.createServer(async (req, res) => {
       dados.user_agent = (req.headers['user-agent'] || '').slice(0, 300);
 
       try {
-        const { id } = await criarPedido(dados);
+        const { id, criado_em } = await criarPedido(dados);
+
+        // Não dá await: a resposta ao apoiador não espera o Google.
+        enviarParaPlanilha({ ...dados, id, criado_em, status: 'novo', observacoes: null });
+
         return json(res, 201, {
           ok: true,
           id,
@@ -315,7 +320,8 @@ async function iniciar() {
   // 0.0.0.0 é obrigatório no Railway — em localhost o healthcheck não enxerga.
   servidor.listen(PORTA, '0.0.0.0', () => {
     console.log(`\n  Site:  http://localhost:${PORTA}`);
-    console.log(`  Admin: http://localhost:${PORTA}/admin?token=${ADMIN_TOKEN}\n`);
+    console.log(`  Admin: http://localhost:${PORTA}/admin?token=${ADMIN_TOKEN}`);
+    console.log(`  Planilha: ${temPlanilha ? 'cópia em tempo real ligada' : 'desligada'}\n`);
   });
 }
 

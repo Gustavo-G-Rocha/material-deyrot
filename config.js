@@ -185,6 +185,20 @@ export const UFS = [
   'SP', 'SE', 'TO',
 ];
 
+/**
+ * Integrações do servidor. NÃO entra em `configPublica()` — o navegador
+ * não recebe nada daqui.
+ *
+ * `planilhaUrl` é o endereço /exec do Web App do Apps Script que espelha os
+ * pedidos no Google Planilhas (veja planilha/LEIA-ME.md). Deixar em branco
+ * ou remover a variável desliga o envio em tempo real; a sincronização
+ * automática da planilha continua funcionando de qualquer jeito.
+ */
+export const integracoes = {
+  planilhaUrl: process.env.PLANILHA_URL
+    || 'https://script.google.com/macros/s/AKfycbzdP5KhAym6euXMt_ob90bADCdtyZHZoxqVPG6ScbF8UMctS-bdlTZ2TyCxio4-vt17/exec',
+};
+
 /** Config pública entregue ao navegador (nada sensível aqui). */
 export function configPublica() {
   return { campanha, kits, opcoes, ufs: UFS };

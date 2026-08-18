@@ -43,6 +43,7 @@ Site em `http://localhost:3000` · Painel em `http://localhost:3000/admin?token=
 | `ADMIN_TOKEN`  | sim         | Senha do painel e da exportação CSV             |
 | `PORT`         | não (3000)  | Porta — o Railway injeta sozinho                |
 | `DB_POOL_MAX`  | não (10)    | Conexões simultâneas no pool                    |
+| `PLANILHA_URL` | não         | Web App que copia o pedido para o Google Planilhas |
 
 > **Troque o `ADMIN_TOKEN` antes de colocar no ar.** Com o padrão, qualquer
 > pessoa acessa a lista completa de nomes, telefones e endereços.
@@ -80,6 +81,7 @@ ajustar se o contraste do gradiente ou do texto sobre a cor não ficar bom.
 config.js              configuração da campanha (candidatos, kits, cores, menu, links)
 server.js              servidor HTTP e rotas
 lib/db.js              Postgres: schema, migração, inserção, consultas, CSV
+lib/planilha.js        envia o pedido recém-criado para a planilha do Google
 lib/validacao.js       validação e normalização do formulário
 lib/scoring.js         nota de engajamento e recomendação de kit
 public/index.html      landing + formulário
@@ -89,6 +91,7 @@ public/styles.css      componentes da página (hero, kits, formulário, revisão
 public/admin.html      painel administrativo
 railway.json           build, start e healthcheck do Railway
 .env.example           modelo das variáveis de ambiente
+planilha/Codigo.gs     script que espelha os pedidos numa planilha do Google
 ```
 
 ## Ordem das seções
@@ -128,6 +131,26 @@ railway connect postgres
 SELECT uf, cidade, COUNT(*) FROM pedidos GROUP BY uf, cidade ORDER BY 3 DESC;
 SELECT kit, SUM(qtd_carros) AS adesivos_carro FROM pedidos GROUP BY kit;
 ```
+
+## Cópia dos pedidos no Google Planilhas
+
+O script em [planilha/Codigo.gs](planilha/Codigo.gs) roda dentro da própria
+planilha (Apps Script) e mantém a cópia por dois caminhos que se completam:
+
+- **em tempo real** — assim que o pedido entra no Postgres, o servidor chama o
+  Web App do script ([lib/planilha.js](lib/planilha.js)) e a linha aparece na
+  hora. É "dispara e esquece": se o Google estiver fora, o pedido já está salvo
+  e nada trava para o apoiador;
+- **a cada 15 minutos** — o script baixa o `/api/admin/export.csv` e reescreve a
+  aba inteira. Isso conserta qualquer envio perdido e traz as mudanças de status
+  feitas no `/admin`.
+
+Passo a passo em [planilha/LEIA-ME.md](planilha/LEIA-ME.md). O `ADMIN_TOKEN`
+fica nas propriedades do script, não no repositório nem visível na planilha, e
+é o mesmo segredo que autentica o envio em tempo real.
+
+É espelho de leitura: editar a planilha não altera o banco, e a aba `Pedidos` é
+apagada e reescrita a cada sincronização.
 
 ## API
 
