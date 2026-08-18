@@ -51,18 +51,34 @@
     .aviso { background: var(--fundo-2); border: 1px solid var(--linha-fraca); border-radius: var(--raio); padding: 2.5rem; text-align: center; color: var(--tinta-fraca); }
     .aviso h2 { font-family: var(--fonte-titulo); text-transform: uppercase; color: var(--tinta); margin-bottom: .6rem; }
     .aviso code { background: var(--fundo-3); padding: .12rem .4rem; border-radius: 4px; color: var(--acento-claro); }
+
+    /* login */
+    .entrada { max-width: 380px; margin: 8vh auto; }
+    .entrada h1 { font-family: var(--fonte-titulo); font-size: 1.6rem; text-transform: uppercase; letter-spacing: .5px; text-align: center; }
+    .entrada .sub { color: var(--tinta-fraca); font-size: .88rem; text-align: center; margin: .4rem 0 1.6rem; }
+    .entrada form { background: var(--fundo-2); border: 1px solid var(--linha-fraca); border-radius: var(--raio); padding: 1.6rem; display: grid; gap: 1rem; }
+    .entrada label { display: block; font-family: var(--fonte-cond); font-size: .74rem; text-transform: uppercase; letter-spacing: .1em; color: var(--tinta-fraca); margin-bottom: .4rem; }
+    .entrada input {
+      width: 100%; padding: .7rem .8rem; font: inherit; color: var(--tinta);
+      background: var(--fundo-3); border: 1px solid var(--linha-fraca); border-radius: 8px;
+    }
+    .entrada input:focus { outline: 2px solid var(--acento); outline-offset: 1px; }
+    .entrada .erro { color: #ff8f8f; font-size: .85rem; min-height: 1.2em; }
+    .quem { color: var(--tinta-fraca); font-size: .82rem; }
   </style>
 </head>
 <body>
-<div class="wrap painel">
+<div class="wrap painel" id="painel" hidden>
   <div class="painel-cabeca">
     <div>
       <h1>Pedidos de material</h1>
       <p class="sub">Ordenado por engajamento — quem rende mais aparece primeiro.</p>
     </div>
-    <div style="display:flex;gap:.6rem">
+    <div style="display:flex;gap:.6rem;align-items:center">
+      <span class="quem" id="quem"></span>
       <button class="btn btn-vazado btn-sm" id="recarregar">Atualizar</button>
-      <a class="btn btn-primario btn-sm" id="exportar">Baixar CSV</a>
+      <a class="btn btn-primario btn-sm" href="/api/admin/export.csv">Baixar CSV</a>
+      <button class="btn btn-vazado btn-sm" id="sair">Sair</button>
     </div>
   </div>
 
@@ -71,29 +87,111 @@
   </div>
 </div>
 
+<div class="wrap entrada" id="entrada" hidden>
+  <h1>Painel de pedidos</h1>
+  <p class="sub">Acesso restrito à equipe da campanha.</p>
+  <form id="form-entrada">
+    <div>
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" autocomplete="username" required autofocus>
+    </div>
+    <div>
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" name="senha" autocomplete="current-password" required>
+    </div>
+    <p class="erro" id="erro-entrada"></p>
+    <button class="btn btn-primario" type="submit" id="botao-entrar">Entrar</button>
+  </form>
+</div>
+
 <script type="module">
-const token = new URLSearchParams(location.search).get('token') || '';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const STATUS = ['novo', 'separado', 'enviado', 'entregue', 'cancelado'];
 let filtroStatus = '';
 
-$('#exportar').href = `/api/admin/export.csv?token=${encodeURIComponent(token)}`;
-$('#recarregar').addEventListener('click', carregar);
+// No banco fica o valor cru do formulário; aqui vira algo legível na tabela.
+const ROTULOS = {
+  ate_1h: 'até 1h', '1_a_3h': '1 a 3h', mais_3h: 'mais de 3h',
+  ate_10: 'até 10', '10_a_30': '10 a 30', mais_30: 'mais de 30',
+  so_eu: 'só ele(a)', algumas: 'algumas pessoas', varias: 'várias pessoas',
+  quero: 'quer', prefiro_outros: 'prefere outros', so_kit: 'só o kit',
+  sem_carro: 'não tem', sem_moto: 'não tem', sim: 'sim', nao: 'não',
+};
+const rot = (v) => ROTULOS[v] ?? (v || '—');
 
-carregar();
+$('#recarregar').addEventListener('click', carregar);
+$('#form-entrada').addEventListener('submit', entrar);
+$('#sair').addEventListener('click', async () => {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  mostrarEntrada();
+});
+
+iniciar();
+
+// --- sessão --------------------------------------------------------------
+
+async function iniciar() {
+  const r = await fetch('/api/admin/eu');
+  if (!r.ok) return mostrarEntrada();
+  const { usuario } = await r.json();
+  mostrarPainel(usuario);
+}
+
+function mostrarEntrada() {
+  $('#painel').hidden = true;
+  $('#entrada').hidden = false;
+  $('#email').focus();
+}
+
+function mostrarPainel(usuario) {
+  $('#entrada').hidden = true;
+  $('#painel').hidden = false;
+  $('#quem').textContent = usuario.nome;
+  carregar();
+}
+
+async function entrar(evento) {
+  evento.preventDefault();
+  const botao = $('#botao-entrar');
+  botao.disabled = true;
+  $('#erro-entrada').textContent = '';
+
+  try {
+    const r = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: $('#email').value, senha: $('#senha').value }),
+    });
+    const dados = await r.json().catch(() => ({}));
+
+    if (!r.ok) {
+      $('#erro-entrada').textContent = dados.erro || 'Não foi possível entrar.';
+      $('#senha').select();
+      return;
+    }
+    $('#senha').value = '';
+    mostrarPainel(dados.usuario);
+  } catch {
+    $('#erro-entrada').textContent = 'Sem conexão com o servidor.';
+  } finally {
+    botao.disabled = false;
+  }
+}
+
+// --- dados ---------------------------------------------------------------
 
 async function carregar() {
-  const url = `/api/admin/pedidos?token=${encodeURIComponent(token)}`
-    + (filtroStatus ? `&status=${filtroStatus}` : '');
-  const r = await fetch(url);
+  const r = await fetch('/api/admin/pedidos' + (filtroStatus ? `?status=${filtroStatus}` : ''));
 
-  if (r.status === 401) {
-    $('#conteudo').innerHTML = `<div class="aviso">
-      <h2>Token inválido</h2>
-      <p>Acesse com <code>/admin?token=SEU_TOKEN</code> (o valor de <code>ADMIN_TOKEN</code>).</p>
-    </div>`;
+  // A sessão dura 12h; quando vence, cai de volta na tela de login.
+  if (r.status === 401) return mostrarEntrada();
+
+  if (!r.ok) {
+    const { erro } = await r.json().catch(() => ({}));
+    $('#conteudo').innerHTML = `<div class="aviso"><h2>Não deu para carregar</h2>
+      <p>${esc(erro || 'Erro no servidor.')}</p></div>`;
     return;
   }
 
@@ -121,20 +219,25 @@ function render(resumo, pedidos) {
           ${STATUS.map(s => `<option value="${s}" ${s === filtroStatus ? 'selected' : ''}>${s}</option>`).join('')}
         </select>
       </label>
-      <span style="color:var(--tinta-suave);font-size:.85rem">${pedidos.length} exibidos</span>
+      <span style="color:var(--tinta-suave);font-size:.85rem">${pedidos.length} exibidos · a tabela rola para o lado</span>
     </div>
 
     <div class="tabela-caixa">
       <table>
         <thead>
           <tr>
-            <th>#</th><th>Nota</th><th>Nome</th><th>WhatsApp</th><th>E-mail</th>
-            <th>Cidade/UF</th><th>Endereço</th><th>Kit</th><th>Carro</th><th>Moto</th>
-            <th>Contato</th><th>Status</th><th>Data</th>
+            <th>#</th><th>Nota</th><th>Data</th><th>Status</th>
+            <th>Nome</th><th>WhatsApp</th><th>E-mail</th>
+            <th>CEP</th><th>Cidade/UF</th><th>Bairro</th><th>Endereço</th><th>Nº</th><th>Compl.</th>
+            <th>Carro</th><th>Moto</th><th>Contato</th>
+            <th>Kit</th><th>Kit sugerido</th>
+            <th>Tempo</th><th>Alcance</th><th>Distribui</th><th>Condomínio</th><th>Unidades</th>
+            <th>LGPD</th>
           </tr>
         </thead>
         <tbody>
-          ${pedidos.map(linha).join('') || '<tr><td colspan="13" style="text-align:center;padding:2rem;color:var(--tinta-suave)">Nenhum pedido ainda.</td></tr>'}
+          ${pedidos.map(linha).join('')
+            || '<tr><td colspan="24" style="text-align:center;padding:2rem;color:var(--tinta-suave)">Nenhum pedido ainda.</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -143,36 +246,47 @@ function render(resumo, pedidos) {
   $('#filtro').addEventListener('change', (e) => { filtroStatus = e.target.value; carregar(); });
   document.querySelectorAll('[data-status-id]').forEach(sel => {
     sel.addEventListener('change', async () => {
-      await fetch(`/api/admin/status?token=${encodeURIComponent(token)}`, {
+      const r = await fetch('/api/admin/status', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ id: Number(sel.dataset.statusId), status: sel.value }),
       });
+      if (r.status === 401) return mostrarEntrada();
       carregar();
     });
   });
 }
 
 function linha(p) {
-  const endereco = `${p.endereco}, ${p.numero}${p.complemento ? ' — ' + p.complemento : ''}`;
   return `<tr>
     <td>${p.id}</td>
     <td class="nota">${p.engajamento}</td>
-    <td>${esc(p.nome)}</td>
-    <td>${esc(p.whatsapp)}</td>
-    <td>${esc(p.email)}</td>
-    <td>${esc(p.cidade)}/${esc(p.uf)}</td>
-    <td title="${esc(endereco)}">${esc(endereco.slice(0, 34))}${endereco.length > 34 ? '…' : ''}</td>
-    <td><span class="pill">${esc(p.kit)}</span></td>
-    <td>${p.adesivo_carro === 'quero' ? p.qtd_carros : '—'}</td>
-    <td>${p.adesivo_moto === 'quero' ? p.qtd_motos : '—'}</td>
-    <td>${p.adesivo_carro === 'quero' ? '<span class="pill alerta">necessita contato</span>' : '—'}</td>
+    <td>${esc((p.criado_em || '').slice(0, 16).replace('T', ' '))}</td>
     <td>
       <select class="status" data-status-id="${p.id}">
         ${STATUS.map(s => `<option value="${s}" ${s === p.status ? 'selected' : ''}>${s}</option>`).join('')}
       </select>
     </td>
-    <td>${esc((p.criado_em || '').slice(0, 16))}</td>
+    <td>${esc(p.nome)}</td>
+    <td>${esc(p.whatsapp)}</td>
+    <td>${esc(p.email)}</td>
+    <td>${esc(p.cep)}</td>
+    <td>${esc(p.cidade)}/${esc(p.uf)}</td>
+    <td>${esc(p.bairro || '—')}</td>
+    <td>${esc(p.endereco)}</td>
+    <td>${esc(p.numero)}</td>
+    <td>${esc(p.complemento || '—')}</td>
+    <td>${esc(rot(p.adesivo_carro))}${p.adesivo_carro === 'quero' ? ` (${p.qtd_carros})` : ''}</td>
+    <td>${esc(rot(p.adesivo_moto))}${p.adesivo_moto === 'quero' ? ` (${p.qtd_motos})` : ''}</td>
+    <td>${p.adesivo_carro === 'quero' ? '<span class="pill alerta">necessita contato</span>' : '—'}</td>
+    <td><span class="pill">${esc(p.kit)}</span></td>
+    <td>${esc(p.kit_recomendado)}</td>
+    <td>${esc(rot(p.disponibilidade))}</td>
+    <td>${esc(rot(p.contatos))}</td>
+    <td>${esc(rot(p.distribuidores))}</td>
+    <td>${esc(rot(p.mora_condominio))}</td>
+    <td>${p.unidades_condominio ?? '—'}</td>
+    <td>${p.aceite_lgpd ? 'sim' : 'não'}</td>
   </tr>`;
 }
 </script>

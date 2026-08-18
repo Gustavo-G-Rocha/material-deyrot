@@ -35,18 +35,23 @@ $env:ADMIN_TOKEN  = "um-token-qualquer"
 npm start
 ```
 
-Site em `http://localhost:3000` · Painel em `http://localhost:3000/admin?token=SEU_TOKEN`
+Site em `http://localhost:3000` · Painel em `http://localhost:3000/admin`
 
-| Variável       | Obrigatória | Para que serve                                  |
-|----------------|-------------|-------------------------------------------------|
-| `DATABASE_URL` | sim         | Conexão com o Postgres                          |
-| `ADMIN_TOKEN`  | sim         | Senha do painel e da exportação CSV             |
-| `PORT`         | não (3000)  | Porta — o Railway injeta sozinho                |
-| `DB_POOL_MAX`  | não (10)    | Conexões simultâneas no pool                    |
-| `PLANILHA_URL` | não         | Web App que copia o pedido para o Google Planilhas |
+| Variável          | Obrigatória | Para que serve                                     |
+|-------------------|-------------|----------------------------------------------------|
+| `DATABASE_URL`    | sim         | Conexão com o Postgres                             |
+| `ADMIN_TOKEN`     | sim         | Assina a sessão do painel e libera o CSV para integrações |
+| `PORT`            | não (3000)  | Porta — o Railway injeta sozinho                   |
+| `DB_POOL_MAX`     | não (10)    | Conexões simultâneas no pool                       |
+| `PLANILHA_URL`    | não         | Web App que copia o pedido para o Google Planilhas |
+| `SESSAO_SEGREDO`  | não         | Chave que assina o cookie (por padrão usa o `ADMIN_TOKEN`) |
 
-> **Troque o `ADMIN_TOKEN` antes de colocar no ar.** Com o padrão, qualquer
-> pessoa acessa a lista completa de nomes, telefones e endereços.
+> **Troque o `ADMIN_TOKEN` antes de colocar no ar.** Ele assina os cookies de
+> sessão e libera o `export.csv` para integrações — com o valor padrão,
+> qualquer pessoa baixa a lista completa de nomes, telefones e endereços.
+
+Trocar o `ADMIN_TOKEN` também desloga todo mundo, o que é justamente o que se
+quer se alguma sessão vazar.
 
 O TLS é resolvido sozinho: desligado para `*.railway.internal` e `localhost`,
 ligado (com certificado auto-assinado aceito) para qualquer outro host.
@@ -81,9 +86,11 @@ ajustar se o contraste do gradiente ou do texto sobre a cor não ficar bom.
 config.js              configuração da campanha (candidatos, kits, cores, menu, links)
 server.js              servidor HTTP e rotas
 lib/db.js              Postgres: schema, migração, inserção, consultas, CSV
+lib/auth.js            login do painel: hash de senha e cookie de sessão
 lib/planilha.js        envia o pedido recém-criado para a planilha do Google
 lib/validacao.js       validação e normalização do formulário
 lib/scoring.js         nota de engajamento e recomendação de kit
+scripts/senha.js       gera o hash de uma senha nova (npm run senha)
 public/index.html      landing + formulário
 public/app.js          formulário multi-etapas (renderizado a partir da config)
 public/theme.css       tokens, botões, cabeçalho, painel de menu e rodapé
@@ -132,6 +139,32 @@ SELECT uf, cidade, COUNT(*) FROM pedidos GROUP BY uf, cidade ORDER BY 3 DESC;
 SELECT kit, SUM(qtd_carros) AS adesivos_carro FROM pedidos GROUP BY kit;
 ```
 
+## Painel /admin
+
+Entra por e-mail e senha, e só quem está em `acessos` no [config.js](config.js)
+entra — hoje são dois: Pedro Deyrot e a campanha do Will Rocha.
+
+Dentro tem os cartões de resumo, a tabela com **todos** os campos do pedido
+(rola para o lado), o filtro por status, a troca de status linha a linha e o
+botão de baixar CSV.
+
+A senha não fica guardada em lugar nenhum: o `config.js` só tem um hash scrypt
+com sal. Para trocar a senha de alguém, ou dar acesso a mais uma pessoa:
+
+```powershell
+npm run senha "a senha nova"
+```
+
+e cole o `hash:` que ele imprime na linha da pessoa, em `acessos`. Tirar alguém
+da lista derruba a sessão dela no clique seguinte.
+
+A sessão dura 12 horas, num cookie `HttpOnly` assinado — não há tabela de
+sessões, então deploy e restart não deslogam ninguém. O login aceita 8
+tentativas por IP a cada 10 minutos.
+
+O `?token=` antigo não abre mais o painel; ele continua valendo só para
+`GET /api/admin/export.csv`, que é como a planilha do Google busca os dados.
+
 ## Cópia dos pedidos no Google Planilhas
 
 O script em [planilha/Codigo.gs](planilha/Codigo.gs) roda dentro da própria
@@ -160,9 +193,12 @@ apagada e reescrita a cada sincronização.
 | GET    | `/api/cep/:cep`          | Consulta de CEP (ViaCEP)                     |
 | POST   | `/api/recomendar`        | Nota de engajamento + kit sugerido           |
 | POST   | `/api/pedidos`           | Cria o pedido                                |
-| GET    | `/api/admin/pedidos`     | Lista + resumo (exige token)                 |
-| POST   | `/api/admin/status`      | Muda o status de um pedido (exige token)     |
-| GET    | `/api/admin/export.csv`  | Exporta tudo em CSV (exige token)            |
+| POST   | `/api/admin/login`       | Entra no painel (e-mail e senha)             |
+| POST   | `/api/admin/logout`      | Sai do painel                                |
+| GET    | `/api/admin/eu`          | Quem está logado                             |
+| GET    | `/api/admin/pedidos`     | Lista + resumo (exige login)                 |
+| POST   | `/api/admin/status`      | Muda o status de um pedido (exige login)     |
+| GET    | `/api/admin/export.csv`  | Exporta tudo em CSV (login ou ADMIN_TOKEN)   |
 
 Proteções já incluídas: validação no servidor (o cliente não é confiável),
 limite de 12 envios por IP a cada 10 minutos, campo honeypot contra bots,
@@ -171,6 +207,7 @@ limite de tamanho do corpo da requisição e bloqueio de path traversal.
 ## Antes de publicar
 
 - [ ] Trocar `ADMIN_TOKEN` por um valor longo e aleatório
+- [ ] Trocar as senhas de `acessos` por senhas que não circularam por chat
 - [ ] Preencher `config.js` com os dados reais dos candidatos
 - [ ] Colocar as imagens da campanha em `public/assets/` (fotos e artes próprias)
 - [ ] Publicar a política de privacidade e apontar `campanha.links.privacidade` para ela

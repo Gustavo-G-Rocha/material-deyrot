@@ -186,6 +186,30 @@ export const UFS = [
 ];
 
 /**
+ * Quem entra no painel /admin. NÃO entra em `configPublica()`.
+ *
+ * A senha não fica aqui — só um hash scrypt com sal, que não dá para
+ * desfazer. Para trocar a senha de alguém ou incluir mais uma pessoa:
+ *
+ *     npm run senha "a senha nova"
+ *
+ * e cole o `hash:` que ele imprime na linha da pessoa. Remover alguém desta
+ * lista derruba a sessão dela no clique seguinte.
+ */
+export const acessos = [
+  {
+    nome: 'Pedro Deyrot',
+    email: 'pedrodeyrot14@gmail.com',
+    hash: 'scrypt$e6114ef43f55e1155847936c85dff3f1$5fba97807d857aaaae09ef55014a0daf499753923af766b25b5144de5f970f5f',
+  },
+  {
+    nome: 'Campanha Will Rocha',
+    email: 'campanhawillrocha@gmail.com',
+    hash: 'scrypt$ea915de029debff12410f57b11af96cb$f9c9afc67d92a5105f94e28aec4084cd65394a26b6853c69021ca9cd812e80ee',
+  },
+];
+
+/**
  * Integrações do servidor. NÃO entra em `configPublica()` — o navegador
  * não recebe nada daqui.
  *

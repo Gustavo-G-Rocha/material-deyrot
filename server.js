@@ -10,6 +10,7 @@ import {
   contarPedidos, atualizarStatus, exportarCsv, fecharBanco,
 } from './lib/db.js';
 import { temPlanilha, enviarParaPlanilha } from './lib/planilha.js';
+import { autenticar, criarSessao, lerSessao, cookieSessao, cookieSaida } from './lib/auth.js';
 
 const PORTA = Number(process.env.PORT) || 3000;
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'trocar-este-token';
@@ -88,10 +89,21 @@ function excedeuLimite(ip, max = 12, ms = 10 * 60 * 1000) {
   return marcas.length > max;
 }
 
-function autorizado(url, req) {
+/**
+ * Quem está falando com a API administrativa.
+ *
+ * O painel entra por login (cookie de sessão). O ADMIN_TOKEN continua valendo,
+ * mas só para `export.csv` — é o que a planilha do Google usa, e ela não tem
+ * como fazer login. Assim o painel em si fica restrito às pessoas de `acessos`.
+ */
+function quemE(url, req, { aceitaToken = false } = {}) {
+  const sessao = lerSessao(req);
+  if (sessao) return sessao;
+
+  if (!aceitaToken) return null;
   const token = url.searchParams.get('token')
     || (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-  return token && token === ADMIN_TOKEN;
+  return token && token === ADMIN_TOKEN ? { email: 'token', nome: 'Integração' } : null;
 }
 
 // --- rotas ---------------------------------------------------------------
@@ -211,9 +223,36 @@ const servidor = http.createServer(async (req, res) => {
       }
     }
 
+    // ---- login do painel ------------------------------------------------
+    if (rota === '/api/admin/login' && req.method === 'POST') {
+      const ip = ipDe(req);
+      if (excedeuLimite(`login:${ip}`, 8, 10 * 60 * 1000)) {
+        return json(res, 429, { erro: 'Muitas tentativas. Espere alguns minutos.' });
+      }
+
+      const { email, senha } = await lerJson(req);
+      const usuario = autenticar(email, senha);
+      if (!usuario) return json(res, 401, { erro: 'E-mail ou senha incorretos.' });
+
+      res.setHeader('set-cookie', cookieSessao(criarSessao(usuario), req));
+      return json(res, 200, { ok: true, usuario });
+    }
+
+    if (rota === '/api/admin/logout' && req.method === 'POST') {
+      res.setHeader('set-cookie', cookieSaida(req));
+      return json(res, 200, { ok: true });
+    }
+
     // ---- API administrativa --------------------------------------------
     if (rota.startsWith('/api/admin/')) {
-      if (!autorizado(url, req)) return json(res, 401, { erro: 'Token inválido' });
+      const soExportacao = rota === '/api/admin/export.csv';
+      const usuario = quemE(url, req, { aceitaToken: soExportacao });
+      if (!usuario) return json(res, 401, { erro: 'Faça login para continuar.' });
+
+      if (rota === '/api/admin/eu' && req.method === 'GET') {
+        return json(res, 200, { usuario });
+      }
+
       if (SEM_BANCO) return json(res, 503, { erro: 'Modo vitrine: sem banco conectado.' });
 
       if (rota === '/api/admin/pedidos' && req.method === 'GET') {
@@ -320,7 +359,7 @@ async function iniciar() {
   // 0.0.0.0 é obrigatório no Railway — em localhost o healthcheck não enxerga.
   servidor.listen(PORTA, '0.0.0.0', () => {
     console.log(`\n  Site:  http://localhost:${PORTA}`);
-    console.log(`  Admin: http://localhost:${PORTA}/admin?token=${ADMIN_TOKEN}`);
+    console.log(`  Admin: http://localhost:${PORTA}/admin  (login por e-mail e senha)`);
     console.log(`  Planilha: ${temPlanilha ? 'cópia em tempo real ligada' : 'desligada'}\n`);
   });
 }
