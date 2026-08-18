@@ -126,7 +126,10 @@ vezes (a API responde `409`), e índice composto `(engajamento DESC, criado_em D
 para a fila do painel.
 
 Status possíveis: `novo`, `separado`, `enviado`, `entregue`, `cancelado` — garantidos
-por `CHECK` na tabela e alteráveis direto no painel.
+por `CHECK` na tabela e alteráveis direto no painel. A conferência antifraude usa
+`revisao` (`pendente`, `aprovado`, `suspeito`), também com `CHECK`, mais
+`revisado_por` e `revisado_em`. As colunas são criadas por `ALTER TABLE ... IF NOT
+EXISTS` no boot, então bancos antigos migram sozinhos no deploy.
 
 Para abrir o banco pelo terminal:
 
@@ -165,6 +168,35 @@ tentativas por IP a cada 10 minutos.
 O `?token=` antigo não abre mais o painel; ele continua valendo só para
 `GET /api/admin/export.csv`, que é como a planilha do Google busca os dados.
 
+### Conferência antifraude
+
+Cada pedido tem um campo `revisao` — `pendente`, `aprovado` ou `suspeito` — que
+se muda direto na tabela, junto de uma observação livre. Fica gravado **quem**
+conferiu e **quando** (`revisado_por`, `revisado_em`), então a decisão tem dono.
+Dá para filtrar a lista por revisão e o cartão "A conferir" mostra quantos ainda
+estão pendentes.
+
+A coluna **Sinais** marca sozinha o que merece uma olhada:
+
+| Sinal | O que significa |
+|---|---|
+| `N× mesmo IP` | Mais de um pedido da mesma conexão |
+| `N× mesmo endereço` | Mesmo CEP + número + complemento (a porta exata) |
+| `N× mesmo nome` / `mesmo e-mail` | Repetido com WhatsApp diferente |
+| `perfil no máximo` | Respondeu o topo nas três perguntas de perfil, o que infla a nota e o kit |
+| `pediu G, sugerido P` | Escolheu kit maior do que o perfil indicava |
+| `sem navegador` | Chegou sem `user_agent` — cara de envio automatizado |
+| `N unidades` | Condomínio com 300+ unidades, que soma pontos na nota |
+
+**Nada é bloqueado automaticamente.** Nenhum desses sinais prova fraude sozinho:
+uma família divide IP e endereço, e o WhatsApp duplicado já é barrado no banco
+por índice único. Os sinais existem para direcionar a conferência humana — quem
+decide é quem está no painel, e a linha suspeita fica destacada em vermelho.
+
+As contagens são calculadas sobre a tabela inteira (funções de janela em
+[lib/db.js](lib/db.js)), não só sobre a página exibida — senão o terceiro pedido
+de um mesmo IP passaria limpo por estar na página seguinte.
+
 ## Cópia dos pedidos no Google Planilhas
 
 O script em [planilha/Codigo.gs](planilha/Codigo.gs) roda dentro da própria
@@ -198,6 +230,7 @@ apagada e reescrita a cada sincronização.
 | GET    | `/api/admin/eu`          | Quem está logado                             |
 | GET    | `/api/admin/pedidos`     | Lista + resumo (exige login)                 |
 | POST   | `/api/admin/status`      | Muda o status de um pedido (exige login)     |
+| POST   | `/api/admin/revisao`     | Marca a conferência antifraude (exige login) |
 | GET    | `/api/admin/export.csv`  | Exporta tudo em CSV (login ou ADMIN_TOKEN)   |
 
 Proteções já incluídas: validação no servidor (o cliente não é confiável),

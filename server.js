@@ -7,7 +7,7 @@ import { validarPedido } from './lib/validacao.js';
 import { calcularEngajamento, kitRecomendado, kitPorSlug } from './lib/scoring.js';
 import {
   temBanco, descreverConexao, esperarBanco, migrar, criarPedido, listarPedidos,
-  contarPedidos, atualizarStatus, exportarCsv, fecharBanco,
+  contarPedidos, atualizarStatus, atualizarRevisao, exportarCsv, fecharBanco,
 } from './lib/db.js';
 import { temPlanilha, enviarParaPlanilha } from './lib/planilha.js';
 import { autenticar, criarSessao, lerSessao, cookieSessao, cookieSaida } from './lib/auth.js';
@@ -204,7 +204,9 @@ const servidor = http.createServer(async (req, res) => {
         const { id, criado_em } = await criarPedido(dados);
 
         // Não dá await: a resposta ao apoiador não espera o Google.
-        enviarParaPlanilha({ ...dados, id, criado_em, status: 'novo', observacoes: null });
+        enviarParaPlanilha({
+          ...dados, id, criado_em, status: 'novo', observacoes: null, revisao: 'pendente',
+        });
 
         return json(res, 201, {
           ok: true,
@@ -262,6 +264,7 @@ const servidor = http.createServer(async (req, res) => {
             limite: Math.min(Number(url.searchParams.get('limite')) || 200, 1000),
             offset: Number(url.searchParams.get('offset')) || 0,
             status: url.searchParams.get('status'),
+            revisao: url.searchParams.get('revisao'),
           }),
         ]);
         return json(res, 200, { resumo, pedidos });
@@ -272,6 +275,20 @@ const servidor = http.createServer(async (req, res) => {
         const validos = ['novo', 'separado', 'enviado', 'entregue', 'cancelado'];
         if (!validos.includes(status)) return json(res, 400, { erro: 'Status inválido' });
         await atualizarStatus(Number(id), status);
+        return json(res, 200, { ok: true });
+      }
+
+      if (rota === '/api/admin/revisao' && req.method === 'POST') {
+        const { id, revisao, observacoes } = await lerJson(req);
+        if (!['pendente', 'aprovado', 'suspeito'].includes(revisao)) {
+          return json(res, 400, { erro: 'Revisão inválida' });
+        }
+        // Fica registrado quem conferiu — a decisão tem dono.
+        // undefined = não mexer na nota; string vazia = apagar a nota.
+        await atualizarRevisao(
+          Number(id), revisao,
+          observacoes === undefined ? null : String(observacoes).slice(0, 500),
+          usuario.email);
         return json(res, 200, { ok: true });
       }
 

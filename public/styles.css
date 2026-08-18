@@ -288,3 +288,5 @@
 /* ---------- chamada final ---------- */
 .secao-cta { text-align: center; }
 .secao-cta p { color: var(--tinta-fraca); max-width: 54ch; margin: 18px auto 32px; }
+/* linha curta logo acima do botão: fica mais próxima dele que o parágrafo */
+.secao-cta .cta-nota { color: var(--tinta); margin-bottom: 18px; }

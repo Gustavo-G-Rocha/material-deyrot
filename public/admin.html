@@ -65,6 +65,28 @@
     .entrada input:focus { outline: 2px solid var(--acento); outline-offset: 1px; }
     .entrada .erro { color: #ff8f8f; font-size: .85rem; min-height: 1.2em; }
     .quem { color: var(--tinta-fraca); font-size: .82rem; }
+
+    /* conferência antifraude */
+    .sinal {
+      display: inline-block; margin: 1px 2px 1px 0; padding: .1rem .45rem;
+      border-radius: 999px; font-family: var(--fonte-cond); font-size: .7rem;
+      letter-spacing: .03em; white-space: nowrap; cursor: help;
+      color: #ffb4b4; background: rgba(255, 90, 90, .12); border: 1px solid rgba(255, 90, 90, .35);
+    }
+    .sinal.brando { color: var(--tinta-fraca); background: var(--veu-2); border-color: var(--linha); }
+    tr.linha-suspeita { background: rgba(255, 90, 90, .07); }
+    tr.linha-suspeita:hover { background: rgba(255, 90, 90, .12); }
+    tr.linha-aprovada td:first-child { box-shadow: inset 3px 0 0 var(--acento); }
+    .cartao.alerta .n { color: #ff8f8f; }
+    .obs { max-width: 220px; white-space: normal; color: var(--tinta-fraca); font-size: .8rem; }
+    .btn-nota {
+      font: inherit; font-size: .75rem; cursor: pointer; padding: .15rem .4rem;
+      background: var(--fundo-3); color: var(--tinta-fraca);
+      border: 1px solid var(--linha-fraca); border-radius: 5px;
+    }
+    .btn-nota:hover { color: var(--tinta); }
+    select.status.rev-suspeito { border-color: rgba(255, 90, 90, .6); color: #ffb4b4; }
+    select.status.rev-aprovado { border-color: var(--acento); color: var(--acento-claro); }
   </style>
 </head>
 <body>
@@ -109,7 +131,11 @@ const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const STATUS = ['novo', 'separado', 'enviado', 'entregue', 'cancelado'];
+const REVISOES = ['pendente', 'aprovado', 'suspeito'];
+const ORDEM_KIT = ['p', 'm', 'g'];
+
 let filtroStatus = '';
+let filtroRevisao = '';
 
 // No banco fica o valor cru do formulário; aqui vira algo legível na tabela.
 const ROTULOS = {
@@ -120,6 +146,52 @@ const ROTULOS = {
   sem_carro: 'não tem', sem_moto: 'não tem', sim: 'sim', nao: 'não',
 };
 const rot = (v) => ROTULOS[v] ?? (v || '—');
+
+/**
+ * Sinais de que o pedido merece uma olhada antes de despachar.
+ *
+ * Nenhum deles prova fraude sozinho — o mesmo IP é normal numa família, e
+ * marido e mulher dividem endereço. São pistas para a conferência humana,
+ * por isso o painel mostra e não bloqueia nada automaticamente.
+ */
+function sinaisDe(p) {
+  const s = [];
+
+  if (p.n_mesmo_ip > 0) {
+    s.push([`${p.n_mesmo_ip + 1}× mesmo IP`,
+      `${p.n_mesmo_ip + 1} pedidos vieram da mesma conexão de internet. Pode ser a mesma casa — ou a mesma pessoa se cadastrando várias vezes.`]);
+  }
+  if (p.n_mesmo_endereco > 0) {
+    s.push([`${p.n_mesmo_endereco + 1}× mesmo endereço`,
+      `Mesmo CEP, número e complemento de outro(s) ${p.n_mesmo_endereco} pedido(s). A porta é exatamente a mesma.`]);
+  }
+  if (p.n_mesmo_nome > 0) {
+    s.push([`${p.n_mesmo_nome + 1}× mesmo nome`,
+      'Outro pedido usa exatamente este nome, com WhatsApp diferente.']);
+  }
+  if (p.n_mesmo_email > 0) {
+    s.push([`${p.n_mesmo_email + 1}× mesmo e-mail`,
+      'O mesmo e-mail aparece em mais de um pedido, com WhatsApp diferente.']);
+  }
+  if (p.disponibilidade === 'mais_3h' && p.contatos === 'mais_30' && p.distribuidores === 'varias') {
+    s.push(['perfil no máximo',
+      'Respondeu o topo em todas as perguntas de perfil, o que puxa a nota e o kit para cima. Vale confirmar por WhatsApp.']);
+  }
+  if (ORDEM_KIT.indexOf(p.kit) > ORDEM_KIT.indexOf(p.kit_recomendado)) {
+    s.push([`pediu ${String(p.kit).toUpperCase()}, sugerido ${String(p.kit_recomendado).toUpperCase()}`,
+      'Escolheu um kit maior do que o perfil indicava.']);
+  }
+  if (!p.user_agent) {
+    s.push(['sem navegador',
+      'O pedido chegou sem identificação de navegador — típico de envio automatizado.']);
+  }
+  if (p.mora_condominio === 'sim' && Number(p.unidades_condominio) >= 300) {
+    s.push([`${p.unidades_condominio} unidades`,
+      'Número de unidades do condomínio bem alto, e ele soma pontos na nota. Confirme antes de mandar kit grande.']);
+  }
+
+  return s;
+}
 
 $('#recarregar').addEventListener('click', carregar);
 $('#form-entrada').addEventListener('submit', entrar);
@@ -183,7 +255,11 @@ async function entrar(evento) {
 // --- dados ---------------------------------------------------------------
 
 async function carregar() {
-  const r = await fetch('/api/admin/pedidos' + (filtroStatus ? `?status=${filtroStatus}` : ''));
+  const busca = new URLSearchParams();
+  if (filtroStatus) busca.set('status', filtroStatus);
+  if (filtroRevisao) busca.set('revisao', filtroRevisao);
+
+  const r = await fetch('/api/admin/pedidos' + (busca.size ? `?${busca}` : ''));
 
   // A sessão dura 12h; quando vence, cai de volta na tela de login.
   if (r.status === 401) return mostrarEntrada();
@@ -203,6 +279,16 @@ function render(resumo, pedidos) {
   const topoKit = resumo.porKit.map(k => `${k.kit}: ${k.n}`).join(' · ') || '—';
   const topoUf = resumo.porUf.slice(0, 4).map(u => `${u.uf}: ${u.n}`).join(' · ') || '—';
 
+  // O cartão conta pedidos marcados na página; os totais do resumo olham a base toda.
+  const totalSinais = pedidos.filter(p => sinaisDe(p).length).length;
+  const temSinal = totalSinais > 0;
+  const detalheSinais = [
+    resumo.sinais.ip_repetido && `${resumo.sinais.ip_repetido} IP`,
+    resumo.sinais.endereco_repetido && `${resumo.sinais.endereco_repetido} endereço`,
+    resumo.sinais.nome_repetido && `${resumo.sinais.nome_repetido} nome`,
+    resumo.sinais.email_repetido && `${resumo.sinais.email_repetido} e-mail`,
+  ].filter(Boolean).join(' · ') || 'nada repetido na base';
+
   $('#conteudo').innerHTML = `
     <div class="cartoes">
       <div class="cartao"><div class="r">Pedidos</div><div class="n">${resumo.total}</div></div>
@@ -210,6 +296,10 @@ function render(resumo, pedidos) {
       <div class="cartao"><div class="r">Adesivos moto</div><div class="n">${resumo.adesivos.motos}</div></div>
       <div class="cartao"><div class="r">Por kit</div><div class="d">${esc(topoKit)}</div></div>
       <div class="cartao"><div class="r">Top estados</div><div class="d">${esc(topoUf)}</div></div>
+      <div class="cartao"><div class="r">A conferir</div><div class="n">${resumo.revisao.pendente}</div>
+        <div class="d">${resumo.revisao.aprovado} aprovados · ${resumo.revisao.suspeito} suspeitos</div></div>
+      <div class="cartao ${temSinal ? 'alerta' : ''}"><div class="r">Com sinal</div><div class="n">${totalSinais}</div>
+        <div class="d">${esc(detalheSinais)}</div></div>
     </div>
 
     <div class="filtros">
@@ -217,6 +307,12 @@ function render(resumo, pedidos) {
         <select class="status" id="filtro">
           <option value="">todos</option>
           ${STATUS.map(s => `<option value="${s}" ${s === filtroStatus ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </label>
+      <label>Revisão:
+        <select class="status" id="filtro-revisao">
+          <option value="">todas</option>
+          ${REVISOES.map(s => `<option value="${s}" ${s === filtroRevisao ? 'selected' : ''}>${s}</option>`).join('')}
         </select>
       </label>
       <span style="color:var(--tinta-suave);font-size:.85rem">${pedidos.length} exibidos · a tabela rola para o lado</span>
@@ -227,6 +323,7 @@ function render(resumo, pedidos) {
         <thead>
           <tr>
             <th>#</th><th>Nota</th><th>Data</th><th>Status</th>
+            <th>Revisão</th><th>Sinais</th><th>Observações</th>
             <th>Nome</th><th>WhatsApp</th><th>E-mail</th>
             <th>CEP</th><th>Cidade/UF</th><th>Bairro</th><th>Endereço</th><th>Nº</th><th>Compl.</th>
             <th>Carro</th><th>Moto</th><th>Contato</th>
@@ -237,13 +334,15 @@ function render(resumo, pedidos) {
         </thead>
         <tbody>
           ${pedidos.map(linha).join('')
-            || '<tr><td colspan="24" style="text-align:center;padding:2rem;color:var(--tinta-suave)">Nenhum pedido ainda.</td></tr>'}
+            || '<tr><td colspan="27" style="text-align:center;padding:2rem;color:var(--tinta-suave)">Nenhum pedido ainda.</td></tr>'}
         </tbody>
       </table>
     </div>
   `;
 
   $('#filtro').addEventListener('change', (e) => { filtroStatus = e.target.value; carregar(); });
+  $('#filtro-revisao').addEventListener('change', (e) => { filtroRevisao = e.target.value; carregar(); });
+
   document.querySelectorAll('[data-status-id]').forEach(sel => {
     sel.addEventListener('change', async () => {
       const r = await fetch('/api/admin/status', {
@@ -255,10 +354,39 @@ function render(resumo, pedidos) {
       carregar();
     });
   });
+
+  document.querySelectorAll('[data-revisao-id]').forEach(sel => {
+    sel.addEventListener('change', () => salvarRevisao(Number(sel.dataset.revisaoId), sel.value));
+  });
+
+  document.querySelectorAll('[data-nota-id]').forEach(botao => {
+    botao.addEventListener('click', () => {
+      const id = Number(botao.dataset.notaId);
+      const pedido = pedidos.find(p => p.id === id);
+      const texto = prompt(`Observação sobre o pedido #${id} (${pedido.nome}):`, pedido.observacoes || '');
+      if (texto === null) return;                 // cancelou
+      salvarRevisao(id, pedido.revisao, texto.trim());
+    });
+  });
+}
+
+/** Grava a conferência. `observacoes` undefined mantém a nota que já existe. */
+async function salvarRevisao(id, revisao, observacoes) {
+  const r = await fetch('/api/admin/revisao', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id, revisao, observacoes }),
+  });
+  if (r.status === 401) return mostrarEntrada();
+  carregar();
 }
 
 function linha(p) {
-  return `<tr>
+  const marcas = sinaisDe(p);
+  const classe = p.revisao === 'suspeito' ? 'linha-suspeita'
+    : p.revisao === 'aprovado' ? 'linha-aprovada' : '';
+
+  return `<tr class="${classe}">
     <td>${p.id}</td>
     <td class="nota">${p.engajamento}</td>
     <td>${esc((p.criado_em || '').slice(0, 16).replace('T', ' '))}</td>
@@ -266,6 +394,19 @@ function linha(p) {
       <select class="status" data-status-id="${p.id}">
         ${STATUS.map(s => `<option value="${s}" ${s === p.status ? 'selected' : ''}>${s}</option>`).join('')}
       </select>
+    </td>
+    <td>
+      <select class="status rev-${p.revisao}" data-revisao-id="${p.id}"
+              title="${p.revisado_por ? `Conferido por ${esc(p.revisado_por)} em ${esc((p.revisado_em || '').slice(0, 16).replace('T', ' '))}` : 'Ainda não conferido'}">
+        ${REVISOES.map(s => `<option value="${s}" ${s === p.revisao ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </td>
+    <td>${marcas.length
+      ? marcas.map(([texto, dica]) => `<span class="sinal" title="${esc(dica)}">${esc(texto)}</span>`).join('')
+      : '<span class="sinal brando">nada</span>'}</td>
+    <td class="obs">
+      <button class="btn-nota" data-nota-id="${p.id}" title="Escrever uma observação">✎</button>
+      ${esc(p.observacoes || '')}
     </td>
     <td>${esc(p.nome)}</td>
     <td>${esc(p.whatsapp)}</td>
