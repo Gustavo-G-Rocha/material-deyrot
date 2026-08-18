@@ -21,6 +21,15 @@
       color-mix(in srgb, var(--fundo) 45%, transparent) 8%,
       transparent 20%);
 }
+/*
+ * No celular a arte fica baixa e o topo fixo caía em cima dos rostos. Aqui a
+ * capa desce para começar abaixo do topo, e o escurecimento de cima sai junto:
+ * ele existia só para o topo continuar legível sobre a foto.
+ */
+@media (max-width: 720px) {
+  .hero { padding-top: 78px; }
+  .hero-veu { background: linear-gradient(0deg, var(--fundo) 0%, transparent 18%); }
+}
 
 .hero-cards { display: grid; gap: 14px; }
 .cartao-candidato {
@@ -255,8 +264,12 @@
 .aceite input { accent-color: var(--acento); width: 18px; height: 18px; margin-top: 3px; flex: 0 0 auto; }
 .aceite a { color: var(--acento-claro); border-bottom: 1px solid currentColor; }
 
-.form-acoes { display: flex; gap: 14px; margin-top: 34px; }
-.form-acoes .btn { flex: 1; }
+.form-acoes { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+.form-acoes .btn { flex: 1 1 150px; }
+/* em tela estreita o rótulo longo ("Pedir meu material") não pode vazar o cartão */
+@media (max-width: 480px) {
+  .form-acoes .btn { padding-inline: 18px; font-size: .88rem; }
+}
 
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 

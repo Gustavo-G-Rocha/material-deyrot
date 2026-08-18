@@ -49,7 +49,7 @@ export const campanha = {
 
   // ---- Links externos ----------------------------------------------------
   links: {
-    whatsappGrupo: 'https://chat.whatsapp.com/SEU-LINK-AQUI',
+    whatsappGrupo: 'https://chat.whatsapp.com/LJxjfnqcAhsKcjcTc3ALz6?s=qt&p=a&mlu=4',
     site: 'https://pedrodeyrot.com/',
     privacidade: '/privacidade',
     compartilhar:
