@@ -39,6 +39,8 @@
       text-transform: uppercase; background: var(--veu-2); border: 1px solid var(--linha);
       color: var(--acento-claro);
     }
+    /* pedido de perfurado sempre passa por contato antes do envio */
+    .pill.alerta { color: var(--acento-tinta); background: var(--acento); border-color: var(--acento); }
     .nota { font-family: var(--fonte-titulo); font-size: 1.05rem; color: var(--acento-claro); }
 
     select.status {
@@ -128,11 +130,11 @@ function render(resumo, pedidos) {
           <tr>
             <th>#</th><th>Nota</th><th>Nome</th><th>WhatsApp</th><th>E-mail</th>
             <th>Cidade/UF</th><th>Endereço</th><th>Kit</th><th>Carro</th><th>Moto</th>
-            <th>Status</th><th>Data</th>
+            <th>Contato</th><th>Status</th><th>Data</th>
           </tr>
         </thead>
         <tbody>
-          ${pedidos.map(linha).join('') || '<tr><td colspan="12" style="text-align:center;padding:2rem;color:var(--tinta-suave)">Nenhum pedido ainda.</td></tr>'}
+          ${pedidos.map(linha).join('') || '<tr><td colspan="13" style="text-align:center;padding:2rem;color:var(--tinta-suave)">Nenhum pedido ainda.</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -164,6 +166,7 @@ function linha(p) {
     <td><span class="pill">${esc(p.kit)}</span></td>
     <td>${p.adesivo_carro === 'quero' ? p.qtd_carros : '—'}</td>
     <td>${p.adesivo_moto === 'quero' ? p.qtd_motos : '—'}</td>
+    <td>${p.adesivo_carro === 'quero' ? '<span class="pill alerta">necessita contato</span>' : '—'}</td>
     <td>
       <select class="status" data-status-id="${p.id}">
         ${STATUS.map(s => `<option value="${s}" ${s === p.status ? 'selected' : ''}>${s}</option>`).join('')}

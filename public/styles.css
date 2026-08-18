@@ -3,18 +3,25 @@
    Depende dos tokens de theme.css. Nenhuma cor literal aqui.
 =================================================================== */
 
-/* ---------- hero ---------- */
-.hero {
-  position: relative;
-  min-height: 70vh;
-  padding: clamp(130px, 18vw, 190px) 0 clamp(60px, 9vw, 100px);
-  overflow: hidden;
-  display: flex; align-items: flex-end;
+/* ---------- hero ----------
+   A capa já traz o letreiro "A chapa oficial do Renan" desenhado na arte, então
+   não vai texto nenhum por cima: a imagem entra inteira, sem corte, e só as
+   pontas são dissolvidas no fundo — em cima para o topo fixo continuar legível,
+   embaixo para a página seguir sem costura visível.                          */
+.hero { position: relative; background: var(--fundo); }
+.hero-capa { display: block; width: 100%; height: auto; }
+.hero-veu {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--fundo) 62%, transparent) 0%,
+      transparent 20%),
+    linear-gradient(0deg,
+      var(--fundo) 0%,
+      color-mix(in srgb, var(--fundo) 45%, transparent) 8%,
+      transparent 20%);
 }
-.hero-inner {
-  position: relative; z-index: 1;
-  width: 100%;
-}
+
 .hero-cards { display: grid; gap: 14px; }
 .cartao-candidato {
   display: flex; align-items: center; gap: 14px;
@@ -49,10 +56,6 @@
   background: linear-gradient(135deg, var(--acento-claro), var(--acento-escuro));
   padding: 8px 12px; border-radius: var(--raio-sm);
 }
-@media (max-width: 920px) {
-  .hero-inner { grid-template-columns: 1fr; gap: 34px; }
-}
-
 /* ---------- kits ---------- */
 .grade-kits { display: grid; grid-template-columns: repeat(auto-fit, minmax(238px, 1fr)); gap: 18px; }
 .kit {
@@ -63,6 +66,15 @@
   transition: border-color .2s ease, transform .2s ease;
 }
 .kit h3 { text-transform: uppercase; letter-spacing: .04em; font-size: 1.25rem; }
+/* faixa de pontuação: a regra que faz o kit ser recomendado, dita na cara */
+.kit-faixa {
+  align-self: flex-start;
+  font-family: var(--fonte-cond); font-size: .7rem;
+  text-transform: uppercase; letter-spacing: .1em;
+  color: var(--acento-claro);
+  border: 1px solid var(--linha); border-radius: 999px;
+  background: var(--veu-1); padding: 3px 11px;
+}
 .kit-resumo { color: var(--tinta-fraca); font-size: .9rem; }
 .kit ul { list-style: none; display: grid; gap: 7px; font-size: .94rem; margin-top: 4px; }
 .kit li { display: flex; gap: 10px; align-items: baseline; }
@@ -95,7 +107,7 @@
 
 /* ---------- adesivo ---------- */
 .adesivo-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-.carro { width: 100%; height: auto; display: block; overflow: visible; }
+.adesivo-img img { width: 100%; height: auto; display: block; }
 .adesivo-texto p { color: var(--tinta-fraca); margin-top: 16px; }
 .lista-check { list-style: none; display: grid; gap: 14px; margin: 26px 0 30px; }
 .lista-check li { padding-left: 30px; position: relative; color: var(--tinta-fraca); font-size: .96rem; }
@@ -104,6 +116,12 @@
   color: var(--acento-claro); font-weight: 700;
 }
 .lista-check strong { color: var(--tinta); font-family: var(--fonte-cond); letter-spacing: .02em; }
+.nota-perfurado {
+  color: var(--tinta-fraca); font-size: .88rem; line-height: 1.6;
+  max-width: 62ch; margin: 0 0 26px;
+  padding-left: 14px; border-left: 2px solid var(--acento);
+}
+.nota-perfurado.centro { margin-inline: auto; text-align: left; }
 @media (max-width: 880px) { .adesivo-inner { grid-template-columns: 1fr; gap: 32px; } }
 
 /* ---------- passos ---------- */

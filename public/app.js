@@ -23,7 +23,6 @@ async function init() {
   aplicarTema(CFG.campanha.tema);
   renderCabecalho();
   renderCandidatos();
-  renderIlustracaoCarro();
   renderVitrineKits();
   renderUFs();
   renderTodasOpcoes();
@@ -58,8 +57,10 @@ function renderCabecalho() {
   const c = CFG.campanha;
   const nomes = c.candidatos.map((x) => x.nome).join(' · ');
   $('[data-campanha-titulo]').textContent = nomes;
-  $('[data-ano]').textContent = c.ano;
-  $('[data-partido]').textContent = c.partido;
+  const ano = $('[data-ano]');
+  if (ano) ano.textContent = c.ano;
+  const partido = $('[data-partido]');
+  if (partido) partido.textContent = c.partido;
   document.title = `Peça seu material · ${nomes}`;
 
   $('[data-rodape-campanha]').textContent =
@@ -98,135 +99,16 @@ function renderCandidatos() {
   `).join('');
 }
 
-/**
- * Carro visto de trás com o adesivo perfurado no vidro.
- * Desenhado em SVG e não em imagem: os nomes vêm da config, então a arte
- * acompanha a troca de candidato, e escala sem perder nitidez.
- */
-function renderIlustracaoCarro() {
-  const c = CFG.campanha;
-  const principal = (c.candidatos[0]?.nome || '').toUpperCase();
-  const secundario = (c.candidatos[1]?.nome || '').toUpperCase();
-
-  // o nome encolhe conforme cresce, para nunca vazar do vidro
-  const tamanho = principal.length > 15 ? 27 : principal.length > 11 ? 33 : 39;
-
-  $('[data-ilustracao-carro]').innerHTML = `
-  <svg class="carro" viewBox="0 0 560 390" role="img"
-       aria-label="Carro visto de trás com o adesivo no vidro traseiro">
-    <defs>
-      <radialGradient id="brilhoAmbiente" cx="50%" cy="45%" r="55%">
-        <stop offset="0%"   stop-color="var(--acento)" stop-opacity=".22"/>
-        <stop offset="100%" stop-color="var(--acento)" stop-opacity="0"/>
-      </radialGradient>
-
-      <linearGradient id="lataria" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%"   stop-color="#33302b"/>
-        <stop offset="55%"  stop-color="#22201d"/>
-        <stop offset="100%" stop-color="#141311"/>
-      </linearGradient>
-
-      <linearGradient id="vidro" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%"   stop-color="var(--acento-claro)"/>
-        <stop offset="100%" stop-color="var(--acento-escuro)"/>
-      </linearGradient>
-
-      <linearGradient id="lanterna" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%"   stop-color="#e86a52"/>
-        <stop offset="100%" stop-color="#b8402c"/>
-      </linearGradient>
-
-      <!-- a perfuração: furos escuros sobre o amarelo -->
-      <pattern id="perfuro" width="7" height="7" patternUnits="userSpaceOnUse">
-        <circle cx="2" cy="2" r="1.55" fill="#100d07" opacity=".62"/>
-      </pattern>
-    </defs>
-
-    <rect width="560" height="390" fill="url(#brilhoAmbiente)"/>
-
-    <!-- sombra no chão -->
-    <ellipse cx="280" cy="358" rx="200" ry="16" fill="#000" opacity=".45"/>
-
-    <!--
-      Rodas: desenhadas antes da carroceria, que cobre a metade de cima e dá
-      o encaixe na caixa de roda. Precisam descer bem abaixo de y=328, que é
-      onde termina a lataria, senão somem atrás dela.
-    -->
-    <g>
-      <rect x="126" y="302" width="56" height="52" rx="11" fill="#0a0908"/>
-      <rect x="134" y="316" width="40" height="30" rx="7" fill="#1c1a17"/>
-      <rect x="126" y="302" width="56" height="52" rx="11" fill="none"
-            stroke="var(--acento)" stroke-opacity=".16" stroke-width="1.2"/>
-
-      <rect x="378" y="302" width="56" height="52" rx="11" fill="#0a0908"/>
-      <rect x="386" y="316" width="40" height="30" rx="7" fill="#1c1a17"/>
-      <rect x="378" y="302" width="56" height="52" rx="11" fill="none"
-            stroke="var(--acento)" stroke-opacity=".16" stroke-width="1.2"/>
-    </g>
-
-    <!-- carroceria -->
-    <path d="M 112 318
-             L 104 196
-             Q 100 150 140 132
-             L 176 66
-             Q 186 46 212 44
-             L 348 44
-             Q 374 46 384 66
-             L 420 132
-             Q 460 150 456 196
-             L 448 318
-             Q 447 328 436 328
-             L 124 328
-             Q 113 328 112 318 Z"
-          fill="url(#lataria)" stroke="var(--acento)" stroke-opacity=".28" stroke-width="1.6"/>
-
-    <!-- moldura do vidro -->
-    <path d="M 196 60 L 364 60 Q 380 60 386 74 L 412 128 Q 416 140 402 140 L 158 140
-             Q 144 140 148 128 L 174 74 Q 180 60 196 60 Z"
-          fill="#0b0a08"/>
-
-    <!-- adesivo perfurado -->
-    <g>
-      <path d="M 202 68 L 358 68 Q 371 68 376 79 L 399 126 Q 403 134 392 134 L 168 134
-               Q 157 134 161 126 L 184 79 Q 189 68 202 68 Z"
-            fill="url(#vidro)"/>
-      <path d="M 202 68 L 358 68 Q 371 68 376 79 L 399 126 Q 403 134 392 134 L 168 134
-               Q 157 134 161 126 L 184 79 Q 189 68 202 68 Z"
-            fill="url(#perfuro)"/>
-
-      <text x="280" y="108" text-anchor="middle"
-            font-family="Anton, Arial Narrow, sans-serif"
-            font-size="${tamanho}" fill="#15100a" letter-spacing="1">${esc(principal)}</text>
-      <text x="280" y="127" text-anchor="middle"
-            font-family="Oswald, Arial Narrow, sans-serif" font-weight="600"
-            font-size="14" fill="#15100a" letter-spacing="5.5"
-            opacity=".9">${esc(secundario)}</text>
-    </g>
-
-    <!-- lanternas -->
-    <rect x="128" y="188" width="94" height="46" rx="13" fill="url(#lanterna)"/>
-    <rect x="141" y="203" width="68" height="10" rx="5" fill="#f2a08c" opacity=".55"/>
-    <rect x="338" y="188" width="94" height="46" rx="13" fill="url(#lanterna)"/>
-    <rect x="351" y="203" width="68" height="10" rx="5" fill="#f2a08c" opacity=".55"/>
-
-    <!-- vinco do porta-malas -->
-    <path d="M 132 258 L 428 258" stroke="#000" stroke-opacity=".4" stroke-width="2"/>
-
-    <!-- placa -->
-    <rect x="232" y="272" width="96" height="30" rx="5" fill="#eceff4"/>
-    <rect x="232" y="272" width="96" height="8"  rx="5" fill="#2a4a9c"/>
-    <text x="280" y="295" text-anchor="middle"
-          font-family="Oswald, sans-serif" font-weight="600"
-          font-size="15" fill="#14171f" letter-spacing="1.5">BRA ${esc(String(c.ano))}</text>
-  </svg>`;
-}
-
 const itensHtml = (kit) => kit.itens
   .map((i) => `<li><b>${i.qtd}</b> ${esc(i.item)}</li>`).join('');
+
+const faixaHtml = (kit) => kit.faixa
+  ? `<span class="kit-faixa">${esc(kit.faixa)}</span>` : '';
 
 function renderVitrineKits() {
   $('[data-kits-vitrine]').innerHTML = CFG.kits.map((k) => `
     <article class="kit">
+      ${faixaHtml(k)}
       <h3>${esc(k.nome)}</h3>
       <p class="kit-resumo">${esc(k.resumo)}</p>
       <ul>${itensHtml(k)}</ul>
@@ -239,6 +121,7 @@ function renderKitsEscolha() {
     <article class="kit" data-kit="${esc(k.slug)}" role="button" tabindex="0"
              aria-pressed="false" aria-label="Escolher ${esc(k.nome)}">
       <span class="kit-etiqueta" data-etiqueta hidden>Recomendado</span>
+      ${faixaHtml(k)}
       <h3>${esc(k.nome)}</h3>
       <p class="kit-resumo">${esc(k.resumo)}</p>
       <ul>${itensHtml(k)}</ul>

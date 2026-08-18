@@ -63,7 +63,7 @@ export const campanha = {
    */
   menu: [
     { rotulo: 'Peça seu material', href: '#pedir', nota: 'Você está aqui', atual: true },
-    { rotulo: 'Kits disponíveis', href: '#kits', nota: 'Os quatro tamanhos' },
+    { rotulo: 'Kits disponíveis', href: '#kits', nota: 'Os três tamanhos' },
     { rotulo: 'Adesivo de carro', href: '#adesivo', nota: 'Vidro traseiro perfurado' },
     { rotulo: 'Como funciona', href: '#como-funciona', nota: 'Do pedido à entrega' },
     // Outros portais da campanha, se houver:
@@ -95,54 +95,51 @@ export const campanha = {
 
 /**
  * Kits disponíveis, do menor para o maior.
+ *
  * `pontos` é a nota mínima de engajamento para o kit ser recomendado
- * automaticamente (ver calcularEngajamento em lib/scoring.js).
+ * automaticamente (ver calcularEngajamento em lib/scoring.js) e `faixa` é
+ * como essa regra aparece para a pessoa. O Kit P fica com pontos 0 porque é
+ * o piso: qualquer nota abaixo de 7 cai nele.
  */
 export const kits = [
   {
-    slug: 'inicial',
-    nome: 'Kit Inicial',
+    slug: 'p',
+    nome: 'Kit P',
     resumo: 'Para quem está começando a divulgar entre conhecidos.',
     pontos: 0,
+    faixa: '4 a 6 pontos',
     itens: [
-      { qtd: 100, item: 'panfletos' },
-      { qtd: 20, item: 'adesivos' },
+      { qtd: 10, item: 'santões' },
+      { qtd: 10, item: 'colinhas' },
+      { qtd: 3, item: 'praguinhas de celular' },
     ],
   },
   {
-    slug: 'rua',
-    nome: 'Kit Rua',
+    slug: 'm',
+    nome: 'Kit M',
     resumo: 'Dá para cobrir a sua rua e o comércio mais próximo.',
-    pontos: 4,
-    itens: [
-      { qtd: 300, item: 'panfletos' },
-      { qtd: 60, item: 'adesivos' },
-      { qtd: 1, item: 'bandeira' },
-    ],
-  },
-  {
-    slug: 'bairro',
-    nome: 'Kit Bairro',
-    resumo: 'Para quem já tem um grupo ajudando na distribuição.',
     pontos: 7,
+    faixa: '7 a 9 pontos',
     itens: [
-      { qtd: 600, item: 'panfletos' },
-      { qtd: 120, item: 'adesivos' },
-      { qtd: 2, item: 'bandeiras' },
-      { qtd: 1, item: 'camiseta' },
+      { qtd: 30, item: 'santões' },
+      { qtd: 30, item: 'colinhas' },
+      { qtd: 5, item: 'praguinhas de celular' },
+      { qtd: 3, item: 'pragões' },
+      { qtd: 1, item: 'parachoque' },
     ],
   },
   {
-    slug: 'cidade',
-    nome: 'Kit Cidade',
-    resumo: 'Para quem coordena voluntários e abastece outras pessoas.',
+    slug: 'g',
+    nome: 'Kit G',
+    resumo: 'Para quem já tem um grupo ajudando na distribuição.',
     pontos: 10,
+    faixa: '10 a 12 pontos',
     itens: [
-      { qtd: 1000, item: 'panfletos' },
-      { qtd: 250, item: 'adesivos' },
-      { qtd: 4, item: 'bandeiras' },
-      { qtd: 2, item: 'camisetas' },
-      { qtd: 1, item: 'faixa' },
+      { qtd: 50, item: 'santões' },
+      { qtd: 50, item: 'colinhas' },
+      { qtd: 5, item: 'praguinhas de celular' },
+      { qtd: 4, item: 'pragões' },
+      { qtd: 2, item: 'parachoques' },
     ],
   },
 ];

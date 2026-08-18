@@ -195,17 +195,6 @@ h3 { font-size: 1.08rem; }
 .portais-link.atual .portais-link-nome { color: var(--acento-claro); }
 body.portais-abertos { overflow: hidden; }
 
-/* ---------- fundo do hero ---------- */
-.hero-fundo {
-  position: absolute; inset: 0; z-index: 0;
-  background:
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--fundo) 25%, transparent) 0%,
-      color-mix(in srgb, var(--fundo) 80%, transparent) 42%,
-      var(--fundo) 72%),
-    url("/assets/chapa-oficial.png") center 15% / cover no-repeat;
-}
-
 /* ---------- tipografia de seção ---------- */
 .secao { padding: clamp(56px, 9vw, 110px) 0; position: relative; overflow: hidden; }
 .secao-alt { background: var(--fundo-2); }

@@ -41,13 +41,9 @@
 
 <!-- ================= 1. HERO ================= -->
 <section class="hero">
-  <div class="hero-fundo"></div>
-
-  <div class="wrap hero-inner">
-    <div class="hero-texto">
-      <h1>O material chega até você. A rua é com a gente.</h1>
-    </div>
-  </div>
+  <img class="hero-capa" src="/assets/chapa-oficial.png" fetchpriority="high"
+       alt="A chapa oficial do Renan">
+  <div class="hero-veu" aria-hidden="true"></div>
 </section>
 
 <!-- ================= 2. FORMULÁRIO ================= -->
@@ -139,6 +135,10 @@
 
           <div class="bloco">
             <h3>Adesivo de carro</h3>
+            <p class="ajuda ajuda-topo">
+              O perfurado de vidro traseiro é sob solicitação: marque abaixo e diga quantos
+              carros tem disponíveis. A gente entra em contato antes de enviar.
+            </p>
             <div class="opcoes" data-opcoes="adesivo_carro"></div>
             <p class="erro" data-erro="adesivo_carro"></p>
             <div class="campo condicional" data-quando="adesivo_carro=quero" hidden>
@@ -242,7 +242,10 @@
 <!-- ================= 3. ADESIVO ================= -->
 <section id="adesivo" class="secao">
   <div class="wrap adesivo-inner">
-    <div class="adesivo-img" data-ilustracao-carro></div>
+    <figure class="adesivo-img">
+      <img src="/assets/VEICULO03.png"
+           alt="Carro visto de trás com o adesivo perfurado no vidro traseiro e dois adesivos de parachoque">
+    </figure>
     <div class="adesivo-texto">
       <h2>O adesivo perfurado de vidro traseiro</h2>
       <p>
@@ -254,6 +257,10 @@
         <li><strong>Visibilidade preservada</strong> — de dentro para fora, o vidro continua transparente.</li>
         <li><strong>Aplicação simples</strong> — vem com instruções e sai sem deixar resíduo.</li>
       </ul>
+      <p class="nota-perfurado">
+        O perfurado não vem dentro do kit: você precisa pedir no formulário e dizer
+        quantos carros tem disponíveis. Nesses casos a gente fala com você antes de enviar.
+      </p>
       <a class="btn btn-primario" href="#pedir">Quero o adesivo</a>
     </div>
   </div>
@@ -267,7 +274,11 @@
       <p>Não precisa se comprometer com mais do que você dá conta. Comece por onde der e peça mais depois.</p>
     </header>
     <div class="grade-kits" data-kits-vitrine></div>
-    <p class="centro" style="margin-top:36px">
+    <p class="nota-perfurado centro" style="margin-top:28px">
+      Adesivo perfurado de vidro traseiro não entra no kit: precisa ser solicitado à parte,
+      informando quantos carros você tem disponíveis.
+    </p>
+    <p class="centro" style="margin-top:28px">
       <a class="btn btn-primario btn-lg" href="#pedir">Descobrir meu kit</a>
     </p>
   </div>
