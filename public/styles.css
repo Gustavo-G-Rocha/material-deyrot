@@ -241,6 +241,17 @@
 }
 .recomendacao b { color: var(--acento-claro); font-family: var(--fonte-cond); letter-spacing: .03em; }
 
+/* kit acima do recomendado: pedido não é gravado, vai confirmar no WhatsApp */
+.aviso-kit {
+  margin-top: 24px; padding: 16px 20px;
+  border: 1px solid color-mix(in srgb, var(--acento) 55%, transparent);
+  border-left-width: 3px;
+  border-radius: var(--raio-sm);
+  background: color-mix(in srgb, var(--acento) 8%, var(--fundo-2));
+  font-size: .95rem; color: var(--tinta-fraca);
+}
+.aviso-kit b { color: var(--acento-claro); font-family: var(--fonte-cond); letter-spacing: .03em; }
+
 /* revisão */
 .revisao { display: grid; gap: 12px; margin-bottom: 26px; }
 .revisao-item {
@@ -280,6 +291,10 @@
   display: grid; place-items: center; font-size: 2rem;
   color: var(--acento-tinta);
   background: linear-gradient(135deg, var(--ok), color-mix(in srgb, var(--ok) 60%, black));
+}
+.sucesso-icone-atencao {
+  background: linear-gradient(135deg, var(--acento-claro), var(--acento-escuro));
+  font-family: var(--fonte-cond);
 }
 .sucesso p { color: var(--tinta-fraca); margin-top: 14px; }
 .sucesso b { color: var(--tinta); }

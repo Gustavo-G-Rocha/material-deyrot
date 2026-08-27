@@ -64,8 +64,8 @@ candidato escrito. Edite lá:
 - `campanha.candidatos[]` — nome, cargo, número e foto de cada candidato
 - `campanha.partido`, `campanha.ano`, `campanha.uf`
 - `campanha.tema` — cores (aplicadas como variáveis CSS)
-- `campanha.links` — grupo de WhatsApp, Instagram, site
-- `kits[]` — nome, itens e a nota mínima de engajamento de cada kit
+- `campanha.links` — grupo de WhatsApp, site e o número que confirma kit maior
+- `kits[]` — nome, itens e a nota mínima de engajamento de cada kit (a ordem define o que é "kit maior")
 - `opcoes` — alternativas dos campos de escolha (o servidor valida contra elas)
 
 As imagens vão em [public/assets/](public/assets/) (veja o LEIA-ME de lá).
@@ -104,19 +104,47 @@ planilha/Codigo.gs     script que espelha os pedidos numa planilha do Google
 
 ## Ordem das seções
 
-Hero → formulário → adesivo de carro → grade de kits → como funciona → CTA final → rodapé.
+Hero → formulário → adesivo perfurado → grade de kits → como funciona → CTA final → rodapé.
 
 ## Fluxo do formulário
 
 1. **Contato** — nome, e-mail, WhatsApp (com máscara)
 2. **Entrega** — CEP com preenchimento automático via ViaCEP, UF, cidade, bairro, endereço, número, complemento
-3. **Adesivos** — carro e moto, com quantidade quando a pessoa quer adesivar
+3. **Adesivo perfurado** — sim ou não, um por pedido
 4. **Perfil** — tempo disponível, alcance, se repassa material, se mora em condomínio
-5. **Kit** — quatro opções, com uma recomendada automaticamente pela nota
+5. **Kit** — três opções, com uma recomendada automaticamente pela nota
 6. **Revisão** — resumo com botão "Corrigir" por bloco e o aceite de uso de dados
 
-A nota de engajamento (0–14) é calculada no servidor em `lib/scoring.js` e serve
+A nota de engajamento (0–13) é calculada no servidor em `lib/scoring.js` e serve
 tanto para recomendar o kit quanto para ordenar a fila de envio no painel.
+
+### Um adesivo só
+
+Existe um adesivo e ele é explícito: **perfurado de vidro traseiro, sim ou não**.
+Parachoque e adesivo de moto saíram do formulário e dos kits — cada formato vira
+um padrão de envio diferente, e vários padrões juntos encarecem o frete e travam
+a separação. Vai **um perfurado por pedido**, então o formulário não pergunta
+quantidade.
+
+### A vitrine não mostra quantidade
+
+Os cartões de kit listam o que vem dentro, sem número. O `qtd` de cada item
+continua no `config.js`, mas só alimenta o padrão de separação e as colunas
+`env_*` do CSV — assim a produção fecha o G com 40 em vez de 50 pelo painel,
+conforme o estoque do dia, sem ninguém precisar publicar o site de novo.
+
+### Kit maior que o recomendado
+
+Quem escolhe um kit acima do que as respostas indicam **não tem o pedido
+gravado**. O que entra no banco vai direto para a pré-expedição, e kit maior
+precisa do aval da produção — gravar obrigaria a parar a fila e conferir pedido
+por pedido antes de imprimir etiqueta.
+
+Em vez disso o `POST /api/pedidos` responde `422` com o link do WhatsApp da
+produção (`campanha.links.confirmacaoNumero`) e a mensagem já montada com nome,
+kit pedido, kit sugerido e cidade. A confirmação e o cadastro acontecem na
+conversa. O formulário avisa disso já na etapa do kit, antes da pessoa preencher
+o resto.
 
 ## Banco
 
@@ -175,8 +203,8 @@ A coluna **Vai enviar** mostra quantas peças saem no total; o ✎ abre um edito
 com um campo por item, e o que você digitar ali é o que vale — não o que a
 pessoa pediu no formulário. "Voltar ao padrão do kit" desfaz o ajuste.
 
-O padrão de cada pedido é o kit escolhido mais os adesivos que a pessoa quis
-(adesivo só entra com a resposta "quero"). Só o **ajuste** é gravado, numa
+O padrão de cada pedido é o kit escolhido mais o perfurado, quando a pessoa
+respondeu que quer (um por pedido). Só o **ajuste** é gravado, numa
 coluna JSONB, e o resto continua saindo do [config.js](config.js) — então mudar
 a composição de um kit reflete em todo pedido que ninguém editou, sem migração.
 
@@ -189,7 +217,7 @@ A exportação troca a coluna JSON `envio` por **uma coluna por item**, já com 
 valor que vale — número puro, sem JSON para interpretar do outro lado:
 
 ```
-env_santoes;env_colinhas;env_praguinhas;env_pragoes;env_parachoques;env_adesivo_carro;env_adesivo_moto;envio_editado
+env_santoes;env_colinhas;env_praguinhas;env_pragoes;env_adesivo_carro;envio_editado
 ```
 
 `envio_editado` é `sim`/`nao` e diz se alguém mexeu naquele pedido ou se ele
@@ -252,7 +280,7 @@ apagada e reescrita a cada sincronização.
 | GET    | `/api/config`            | Config pública (candidatos, kits, opções)    |
 | GET    | `/api/cep/:cep`          | Consulta de CEP (ViaCEP)                     |
 | POST   | `/api/recomendar`        | Nota de engajamento + kit sugerido           |
-| POST   | `/api/pedidos`           | Cria o pedido                                |
+| POST   | `/api/pedidos`           | Cria o pedido (`422` = kit maior, vai para o WhatsApp) |
 | POST   | `/api/admin/login`       | Entra no painel (e-mail e senha)             |
 | POST   | `/api/admin/logout`      | Sai do painel                                |
 | GET    | `/api/admin/eu`          | Quem está logado                             |

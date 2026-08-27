@@ -99,8 +99,13 @@ function renderCandidatos() {
   `).join('');
 }
 
+/*
+ * A vitrine lista o que vem no kit, sem número. A quantidade fecha na
+ * produção, conforme o estoque do dia — se aparecesse aqui, todo ajuste de
+ * separação viraria uma alteração no site.
+ */
 const itensHtml = (kit) => kit.itens
-  .map((i) => `<li><b>${i.qtd}</b> ${esc(i.item)}</li>`).join('');
+  .map((i) => `<li>${esc(i.item)}</li>`).join('');
 
 const faixaHtml = (kit) => kit.faixa
   ? `<span class="kit-faixa">${esc(kit.faixa)}</span>` : '';
@@ -145,6 +150,41 @@ function selecionarKit(slug) {
     c.setAttribute('aria-pressed', String(ativo));
   });
   limparErro('kit');
+  atualizarAvisoKit();
+}
+
+/** Onde o kit fica na escala P < M < G; -1 quando o slug não existe. */
+const nivelKit = (slug) => CFG.kits.findIndex((k) => k.slug === slug);
+
+/** true quando a pessoa escolheu acima do que as respostas dela pedem. */
+function kitAcimaDoRecomendado() {
+  const a = nivelKit(kitEscolhido);
+  const b = nivelKit(kitSugerido);
+  return a >= 0 && b >= 0 && a > b;
+}
+
+/**
+ * Avisa, ainda na etapa do kit, que um kit maior não é pedido automático.
+ *
+ * O servidor recusa esse pedido de qualquer jeito — isto aqui só evita que a
+ * pessoa preencha o resto sem saber que vai cair no WhatsApp no fim.
+ */
+function atualizarAvisoKit() {
+  const caixa = $('[data-aviso-kit]');
+  if (!caixa) return;
+
+  if (!kitAcimaDoRecomendado()) {
+    caixa.hidden = true;
+    return;
+  }
+
+  const escolhido = CFG.kits.find((k) => k.slug === kitEscolhido);
+  const sugerido = CFG.kits.find((k) => k.slug === kitSugerido);
+  caixa.hidden = false;
+  caixa.innerHTML = `O <b>${esc(escolhido.nome)}</b> é maior que o
+    <b>${esc(sugerido.nome)}</b>, que é o indicado pelas suas respostas. Pode pedir,
+    mas esse a gente confirma por WhatsApp antes de separar — no fim do formulário
+    aparece o link da conversa.`;
 }
 
 function renderUFs() {
@@ -155,7 +195,6 @@ function renderUFs() {
 
 const MAPA_OPCOES = {
   adesivo_carro: 'adesivoCarro',
-  adesivo_moto: 'adesivoMoto',
   disponibilidade: 'disponibilidade',
   contatos: 'contatos',
   distribuidores: 'distribuidores',
@@ -237,6 +276,7 @@ function ligarEventos() {
   $('#cep').addEventListener('blur', buscarCep);
 
   $('[data-compartilhar]').addEventListener('click', compartilhar);
+  $('[data-confirmar-voltar]').addEventListener('click', voltarParaKits);
 
   ligarTopo();
   ligarPortais();
@@ -349,8 +389,7 @@ const REGRAS = {
     ['numero', (v) => v.trim().length >= 1, 'Informe o número (ou S/N).'],
   ],
   3: [
-    ['adesivo_carro', null, 'Escolha uma opção.'],
-    ['adesivo_moto', null, 'Escolha uma opção.'],
+    ['adesivo_carro', null, 'Diga se você quer o perfurado.'],
   ],
   4: [
     ['disponibilidade', null, 'Escolha uma opção.'],
@@ -433,9 +472,11 @@ async function sugerirKit() {
 
     caixa.hidden = false;
     caixa.innerHTML = `Pelas suas respostas, o <b>${esc(kit.nome)}</b> é o que faz mais
-      sentido agora — mas a escolha é sua, é só clicar em outro.`;
+      sentido agora. Pode escolher outro — só que os maiores a gente confirma por
+      WhatsApp antes de separar.`;
 
     if (!kitEscolhido) selecionarKit(kit.slug);
+    else atualizarAvisoKit();
   } catch {
     caixa.hidden = true;
   }
@@ -456,11 +497,8 @@ function montarRevisao() {
     ['Contato', 1, `${d.nome}<br>${d.email}<br>${d.whatsapp}`],
     ['Entrega', 2, `${d.endereco}, ${d.numero}${d.complemento ? ` — ${d.complemento}` : ''}<br>
                     ${d.bairro ? d.bairro + '<br>' : ''}${d.cidade} / ${d.uf} — CEP ${d.cep}`],
-    ['Adesivo de carro', 3, rotuloDe('adesivo_carro', d.adesivo_carro)
-      + (d.adesivo_carro === 'quero' ? ` (${d.qtd_carros})` : '')],
-    ['Adesivo de moto', 3, rotuloDe('adesivo_moto', d.adesivo_moto)
-      + (d.adesivo_moto === 'quero' ? ` (${d.qtd_motos})` : '')],
-    ['Kit escolhido', 5, kit ? `${esc(kit.nome)} — ${kit.itens.map((i) => `${i.qtd} ${i.item}`).join(', ')}` : '—'],
+    ['Adesivo perfurado', 3, rotuloDe('adesivo_carro', d.adesivo_carro)],
+    ['Kit escolhido', 5, kit ? `${esc(kit.nome)} — ${esc(kit.itens.map((i) => i.item).join(', '))}` : '—'],
   ];
 
   $('[data-revisao]').innerHTML = linhas.map(([titulo, etapa, conteudo]) => `
@@ -502,6 +540,13 @@ async function enviar(e) {
     });
     const res = await r.json();
 
+    // 422: kit acima do recomendado. O servidor não gravou nada de propósito —
+    // a confirmação (e o cadastro) acontece na conversa com a produção.
+    if (r.status === 422 && res.confirmarKit) {
+      mostrarConfirmacao(res);
+      return;
+    }
+
     if (!r.ok) {
       if (res.campos) {
         for (const [campo, msg] of Object.entries(res.campos)) mostrarErro(campo, msg);
@@ -526,6 +571,32 @@ function etapaDoCampo(campo) {
     if (regras.some(([c]) => c === campo)) return Number(n);
   }
   return campo === 'kit' ? 5 : 6;
+}
+
+function mostrarConfirmacao(res) {
+  const { kit, recomendado, whatsapp } = res.confirmarKit;
+
+  form.hidden = true;
+  $('.progresso').hidden = true;
+
+  const painel = $('[data-confirmar]');
+  painel.hidden = false;
+  $('[data-confirmar-msg]').innerHTML =
+    `Você escolheu o <b>${esc(kit.nome)}</b>, e pelas suas respostas o indicado é o
+     <b>${esc(recomendado.nome)}</b>. Kit maior a gente confirma pessoalmente antes de
+     separar, então <b>seu pedido ainda não foi registrado</b>. Toque no botão abaixo:
+     a mensagem já vai pronta, é só enviar. Se preferir, volte e escolha o
+     ${esc(recomendado.nome)} para o pedido sair na hora.`;
+  $('[data-confirmar-whatsapp]').href = whatsapp;
+  painel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/** Volta do painel de confirmação para a etapa do kit, com tudo preenchido. */
+function voltarParaKits() {
+  $('[data-confirmar]').hidden = true;
+  form.hidden = false;
+  $('.progresso').hidden = false;
+  mostrarEtapa(5);
 }
 
 function mostrarSucesso(res) {

@@ -131,30 +131,18 @@
 
         <!-- ETAPA 3 -->
         <fieldset class="etapa" data-etapa="3" hidden>
-          <legend>Adesivos de veículo</legend>
+          <legend>Adesivo perfurado</legend>
 
           <div class="bloco">
-            <h3>Adesivo de carro</h3>
+            <h3>Você quer o adesivo perfurado de vidro traseiro?</h3>
             <p class="ajuda ajuda-topo">
-              O perfurado de vidro traseiro é sob solicitação: marque abaixo e diga quantos
-              carros tem disponíveis. A gente entra em contato antes de enviar.
+              É o único adesivo que a gente envia: perfurado, para o vidro de trás do
+              carro. Não tem parachoque nem adesivo de moto, e vai <strong>um por
+              pedido</strong>. Ele não vem dentro do kit — a gente separa à parte e
+              fala com você antes de enviar.
             </p>
             <div class="opcoes" data-opcoes="adesivo_carro"></div>
             <p class="erro" data-erro="adesivo_carro"></p>
-            <div class="campo condicional" data-quando="adesivo_carro=quero" hidden>
-              <label for="qtd_carros">Quantos carros você vai adesivar?</label>
-              <input id="qtd_carros" name="qtd_carros" type="number" min="1" max="20" value="1">
-            </div>
-          </div>
-
-          <div class="bloco">
-            <h3>Adesivo de moto</h3>
-            <div class="opcoes" data-opcoes="adesivo_moto"></div>
-            <p class="erro" data-erro="adesivo_moto"></p>
-            <div class="campo condicional" data-quando="adesivo_moto=quero" hidden>
-              <label for="qtd_motos">Quantas motos você vai adesivar?</label>
-              <input id="qtd_motos" name="qtd_motos" type="number" min="1" max="20" value="1">
-            </div>
           </div>
         </fieldset>
 
@@ -198,6 +186,8 @@
           <div class="recomendacao" data-recomendacao hidden></div>
           <div class="grade-kits grade-kits-escolha" data-kits-escolha></div>
           <p class="erro" data-erro="kit"></p>
+          <!-- kit acima do recomendado: o pedido não é gravado, vai para o WhatsApp -->
+          <div class="aviso-kit" data-aviso-kit hidden></div>
         </fieldset>
 
         <!-- ETAPA 6 -->
@@ -225,6 +215,19 @@
         </div>
       </form>
 
+      <!-- KIT MAIOR QUE O RECOMENDADO: confirmação pelo WhatsApp, sem gravar -->
+      <div class="sucesso sucesso-confirmar" data-confirmar hidden>
+        <div class="sucesso-icone sucesso-icone-atencao">!</div>
+        <h2>Falta confirmar com a gente</h2>
+        <p data-confirmar-msg></p>
+        <div class="sucesso-acoes">
+          <a class="btn btn-primario" data-confirmar-whatsapp target="_blank" rel="noopener">
+            Confirmar no WhatsApp
+          </a>
+          <button class="btn btn-vazado" data-confirmar-voltar>Escolher outro kit</button>
+        </div>
+      </div>
+
       <!-- SUCESSO -->
       <div class="sucesso" data-sucesso hidden>
         <div class="sucesso-icone">✓</div>
@@ -244,7 +247,7 @@
   <div class="wrap adesivo-inner">
     <figure class="adesivo-img">
       <img src="/assets/VEICULO03.png"
-           alt="Carro visto de trás com o adesivo perfurado no vidro traseiro e dois adesivos de parachoque">
+           alt="Carro visto de trás com o adesivo perfurado aplicado no vidro traseiro">
     </figure>
     <div class="adesivo-texto">
       <h2>O adesivo perfurado de vidro traseiro</h2>
@@ -258,8 +261,8 @@
         <li><strong>Aplicação simples</strong> — vem com instruções e sai sem deixar resíduo.</li>
       </ul>
       <p class="nota-perfurado">
-        O perfurado não vem dentro do kit: você precisa pedir no formulário e dizer
-        quantos carros tem disponíveis. Nesses casos a gente fala com você antes de enviar.
+        O perfurado não vem dentro do kit: você precisa marcar no formulário que quer.
+        É um por pedido, e a gente fala com você antes de enviar.
       </p>
       <a class="btn btn-primario" href="#pedir">Quero o adesivo</a>
     </div>
@@ -275,8 +278,8 @@
     </header>
     <div class="grade-kits" data-kits-vitrine></div>
     <p class="nota-perfurado centro" style="margin-top:28px">
-      Adesivo perfurado de vidro traseiro não entra no kit: precisa ser solicitado à parte,
-      informando quantos carros você tem disponíveis.
+      O adesivo perfurado de vidro traseiro não entra no kit: é solicitado à parte,
+      no formulário, e vai um por pedido.
     </p>
     <p class="centro" style="margin-top:28px">
       <a class="btn btn-primario btn-lg" href="#pedir">Descobrir meu kit</a>

@@ -49,11 +49,23 @@ export const campanha = {
 
   // ---- Links externos ----------------------------------------------------
   links: {
-    whatsappGrupo: 'https://chat.whatsapp.com/LJxjfnqcAhsKcjcTc3ALz6?s=qt&p=a&mlu=4',
+    whatsappGrupo: 'https://chat.whatsapp.com/JWPeRC3S8eQAJav3MBhdgX?s=cl&p=a&mlu=0',
     site: 'https://pedrodeyrot.com/',
     privacidade: '/privacidade',
     compartilhar:
       'Pedi meu material de campanha pra ajudar na rua. Peça o seu também:',
+
+    /**
+     * Kit acima do recomendado não entra no sistema: o pedido seguiria direto
+     * para a pré-expedição e alguém teria que parar a fila e conferir um por
+     * um. Em vez disso a pessoa fala com a produção pelo WhatsApp e a
+     * confirmação (e o cadastro) é feita à mão de lá.
+     *
+     * `confirmacaoNumero` é só dígitos, no formato que o wa.me aceita:
+     * código do país + DDD + número.
+     */
+    confirmacaoNumero: '5541988829438',
+    confirmacaoTexto: 'Oi, tudo bom? O kit que eu quero no site é maior do que o solicitado.',
   },
 
   /**
@@ -64,7 +76,7 @@ export const campanha = {
   menu: [
     { rotulo: 'Peça seu material', href: '#pedir', nota: 'Você está aqui', atual: true },
     { rotulo: 'Kits disponíveis', href: '#kits', nota: 'Os três tamanhos' },
-    { rotulo: 'Adesivo de carro', href: '#adesivo', nota: 'Vidro traseiro perfurado' },
+    { rotulo: 'Adesivo perfurado', href: '#adesivo', nota: 'Só o vidro traseiro' },
     { rotulo: 'Como funciona', href: '#como-funciona', nota: 'Do pedido à entrega' },
     // Outros portais da campanha, se houver:
     // { rotulo: 'Eventos', href: 'https://eventos.seusite.com.br', nota: 'eventos.seusite.com.br' },
@@ -94,12 +106,19 @@ export const campanha = {
 };
 
 /**
- * Kits disponíveis, do menor para o maior.
+ * Kits disponíveis, do menor para o maior. A ORDEM IMPORTA: é ela que define
+ * o que é "kit maior" — pedir acima do recomendado manda a pessoa confirmar
+ * pelo WhatsApp em vez de gravar o pedido (veja links.confirmacaoNumero).
  *
  * `pontos` é a nota mínima de engajamento para o kit ser recomendado
  * automaticamente (ver calcularEngajamento em lib/scoring.js) e `faixa` é
  * como essa regra aparece para a pessoa. O Kit P fica com pontos 0 porque é
  * o piso: qualquer nota abaixo de 7 cai nele.
+ *
+ * O `qtd` de cada item NÃO aparece no site — a vitrine lista só o que vem no
+ * kit, sem número. Ele serve para o padrão de separação (lib/envio.js) e para
+ * as colunas env_* do CSV, então a produção pode fechar o G com 40 em vez de
+ * 50 direto no painel, sem ninguém precisar mexer aqui.
  */
 export const kits = [
   {
@@ -125,7 +144,6 @@ export const kits = [
       { qtd: 30, item: 'colinhas', slug: 'colinhas' },
       { qtd: 5, item: 'praguinhas de celular', slug: 'praguinhas' },
       { qtd: 3, item: 'pragões', slug: 'pragoes' },
-      { qtd: 1, item: 'parachoque', slug: 'parachoques' },
     ],
   },
   {
@@ -133,13 +151,12 @@ export const kits = [
     nome: 'Kit G',
     resumo: 'Para quem já tem um grupo ajudando na distribuição.',
     pontos: 10,
-    faixa: '10 a 12 pontos',
+    faixa: '10 pontos ou mais',
     itens: [
       { qtd: 50, item: 'santões', slug: 'santoes' },
       { qtd: 50, item: 'colinhas', slug: 'colinhas' },
       { qtd: 5, item: 'praguinhas de celular', slug: 'praguinhas' },
       { qtd: 4, item: 'pragões', slug: 'pragoes' },
-      { qtd: 2, item: 'parachoques', slug: 'parachoques' },
     ],
   },
 ];
@@ -158,24 +175,19 @@ export const itensEnvio = [
   { slug: 'colinhas', rotulo: 'Colinhas' },
   { slug: 'praguinhas', rotulo: 'Praguinhas de celular' },
   { slug: 'pragoes', rotulo: 'Pragões' },
-  { slug: 'parachoques', rotulo: 'Parachoques' },
-  { slug: 'adesivo_carro', rotulo: 'Adesivo de carro' },
-  { slug: 'adesivo_moto', rotulo: 'Adesivo de moto' },
+  { slug: 'adesivo_carro', rotulo: 'Perfurado de vidro traseiro' },
 ];
 
 /** Opções dos campos de escolha — usadas no form e validadas no servidor. */
 export const opcoes = {
+  /**
+   * Um adesivo só, e explícito: perfurado de vidro traseiro, sim ou não.
+   * Parachoque e adesivo de moto saíram porque cada formato vira um padrão
+   * de envio diferente — junto ficam caros e travam a produção.
+   */
   adesivoCarro: [
-    { valor: 'quero', rotulo: 'Quero adesivar meu carro' },
-    { valor: 'prefiro_outros', rotulo: 'Tenho carro, mas prefiro outros materiais' },
-    { valor: 'so_kit', rotulo: 'Quero receber só o kit' },
-    { valor: 'sem_carro', rotulo: 'Não tenho carro' },
-  ],
-  adesivoMoto: [
-    { valor: 'quero', rotulo: 'Quero adesivar minha moto' },
-    { valor: 'prefiro_outros', rotulo: 'Tenho moto, mas prefiro outros materiais' },
-    { valor: 'so_kit', rotulo: 'Quero receber só o kit' },
-    { valor: 'sem_moto', rotulo: 'Não tenho moto' },
+    { valor: 'sim', rotulo: 'Sim, quero o perfurado de vidro traseiro' },
+    { valor: 'nao', rotulo: 'Não, quero receber só o kit' },
   ],
   disponibilidade: [
     { valor: 'ate_1h', rotulo: 'Até 1 hora', pontos: 1 },
@@ -241,6 +253,27 @@ export const integracoes = {
   planilhaUrl: process.env.PLANILHA_URL
     || 'https://script.google.com/macros/s/AKfycbzdP5KhAym6euXMt_ob90bADCdtyZHZoxqVPG6ScbF8UMctS-bdlTZ2TyCxio4-vt17/exec',
 };
+
+/**
+ * Link do WhatsApp da produção para quem escolheu um kit acima do recomendado.
+ *
+ * O pedido não é gravado nesses casos, então a mensagem já vai com o que a
+ * produção precisa para confirmar e cadastrar à mão: quem é, o que quer e o
+ * que o site tinha sugerido.
+ */
+export function linkConfirmacaoKit({ nome, cidade, uf, kit, kitRecomendado } = {}) {
+  const detalhes = [
+    ['Nome', nome],
+    ['Kit que eu quero', kit],
+    ['Kit que o site recomendou', kitRecomendado],
+    ['Cidade', cidade && `${cidade}${uf ? `/${uf}` : ''}`],
+  ].filter(([, valor]) => valor).map(([rotulo, valor]) => `${rotulo}: ${valor}`);
+
+  const texto = [campanha.links.confirmacaoTexto, ...(detalhes.length ? [''] : []), ...detalhes]
+    .join('\n');
+
+  return `https://wa.me/${campanha.links.confirmacaoNumero}?text=${encodeURIComponent(texto)}`;
+}
 
 /** Config pública entregue ao navegador (nada sensível aqui). */
 export function configPublica() {

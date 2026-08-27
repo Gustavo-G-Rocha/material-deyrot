@@ -198,6 +198,10 @@ const ROTULOS = {
   quero: 'quer', prefiro_outros: 'prefere outros', so_kit: 'só o kit',
   sem_carro: 'não tem', sem_moto: 'não tem', sim: 'sim', nao: 'não',
 };
+
+// 'sim' é o valor de hoje; 'quero' é o dos pedidos feitos quando a pergunta
+// do adesivo de carro ainda tinha quatro opções.
+const QUER_PERFURADO = new Set(['sim', 'quero']);
 const rot = (v) => ROTULOS[v] ?? (v || '—');
 
 /**
@@ -232,7 +236,9 @@ function sinaisDe(p) {
   }
   if (ORDEM_KIT.indexOf(p.kit) > ORDEM_KIT.indexOf(p.kit_recomendado)) {
     s.push([`pediu ${String(p.kit).toUpperCase()}, sugerido ${String(p.kit_recomendado).toUpperCase()}`,
-      'Escolheu um kit maior do que o perfil indicava.']);
+      'Kit maior do que o perfil indicava. O site não grava mais esses pedidos — '
+      + 'ele manda a pessoa confirmar no WhatsApp. Então este aqui é antigo ou foi '
+      + 'cadastrado à mão depois da confirmação.']);
   }
   if (!p.user_agent) {
     s.push(['sem navegador',
@@ -402,8 +408,8 @@ function render(resumo, pedidos) {
   $('#conteudo').innerHTML = `
     <div class="cartoes">
       <div class="cartao"><div class="r">Pedidos</div><div class="n">${resumo.total}</div></div>
-      <div class="cartao"><div class="r">Adesivos carro</div><div class="n">${resumo.adesivos.carros}</div></div>
-      <div class="cartao"><div class="r">Adesivos moto</div><div class="n">${resumo.adesivos.motos}</div></div>
+      <div class="cartao"><div class="r">Perfurados</div><div class="n">${resumo.perfurados}</div>
+        <div class="d">um por pedido</div></div>
       <div class="cartao"><div class="r">Por kit</div><div class="d">${esc(topoKit)}</div></div>
       <div class="cartao"><div class="r">Top estados</div><div class="d">${esc(topoUf)}</div></div>
       <div class="cartao"><div class="r">A conferir</div><div class="n">${resumo.revisao.pendente}</div>
@@ -436,7 +442,7 @@ function render(resumo, pedidos) {
             <th>Revisão</th><th>Sinais</th><th>Observações</th>
             <th>Nome</th><th>WhatsApp</th><th>E-mail</th>
             <th>CEP</th><th>Cidade/UF</th><th>Bairro</th><th>Endereço</th><th>Nº</th><th>Compl.</th>
-            <th>Carro</th><th>Moto</th><th>Contato</th>
+            <th>Perfurado</th><th>Contato</th>
             <th>Kit</th><th>Kit sugerido</th><th>Vai enviar</th>
             <th>Tempo</th><th>Alcance</th><th>Distribui</th><th>Condomínio</th><th>Unidades</th>
             <th>LGPD</th>
@@ -534,9 +540,8 @@ function linha(p) {
     <td>${esc(p.endereco)}</td>
     <td>${esc(p.numero)}</td>
     <td>${esc(p.complemento || '—')}</td>
-    <td>${esc(rot(p.adesivo_carro))}${p.adesivo_carro === 'quero' ? ` (${p.qtd_carros})` : ''}</td>
-    <td>${esc(rot(p.adesivo_moto))}${p.adesivo_moto === 'quero' ? ` (${p.qtd_motos})` : ''}</td>
-    <td>${p.adesivo_carro === 'quero' ? '<span class="pill alerta">necessita contato</span>' : '—'}</td>
+    <td>${QUER_PERFURADO.has(p.adesivo_carro) ? 'sim' : esc(rot(p.adesivo_carro))}</td>
+    <td>${QUER_PERFURADO.has(p.adesivo_carro) ? '<span class="pill alerta">necessita contato</span>' : '—'}</td>
     <td><span class="pill">${esc(p.kit)}</span></td>
     <td>${esc(p.kit_recomendado)}</td>
     <td>
