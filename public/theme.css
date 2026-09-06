@@ -200,9 +200,9 @@ body.portais-abertos { overflow: hidden; }
   position: absolute; inset: 0; z-index: 0;
   background:
     linear-gradient(180deg,
-      color-mix(in srgb, var(--fundo) 25%, transparent) 0%,
-      color-mix(in srgb, var(--fundo) 80%, transparent) 42%,
-      var(--fundo) 72%),
+      color-mix(in srgb, var(--fundo) 10%, transparent) 0%,
+      color-mix(in srgb, var(--fundo) 45%, transparent) 30%,
+      var(--fundo) 50%),
     url("/assets/chapa-oficial.png") center 15% / cover no-repeat;
 }
 
