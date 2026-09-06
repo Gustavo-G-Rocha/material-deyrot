@@ -11,8 +11,9 @@ const TOTAL = etapas.length;
 
 let etapaAtual = 1;
 let CFG = null;
-let kitEscolhido = null;
-let kitSugerido = null;
+// O formulário não pergunta mais o perfil de quem pede: todo pedido sai
+// como Kit M, sem escolha do usuário (ver validarPedido em lib/validacao.js).
+const kitEscolhido = 'm';
 
 // ---------- boot ----------------------------------------------------------
 
@@ -26,7 +27,6 @@ async function init() {
   renderVitrineKits();
   renderUFs();
   renderTodasOpcoes();
-  renderKitsEscolha();
   ligarEventos();
   mostrarEtapa(1);
 }
@@ -76,7 +76,7 @@ function renderCabecalho() {
     </li>`;
   }).join('');
 
-  // aparece no rodapé e também no aceite da etapa 6
+  // aparece no rodapé e também no aceite da última etapa
   $$('[data-link-privacidade]').forEach((a) => { a.href = c.links.privacidade; });
   $('[data-link-site]').href = c.links.site;
   $('[data-link-whatsapp]').href = c.links.whatsappGrupo;
@@ -121,72 +121,6 @@ function renderVitrineKits() {
   `).join('');
 }
 
-function renderKitsEscolha() {
-  $('[data-kits-escolha]').innerHTML = CFG.kits.map((k) => `
-    <article class="kit" data-kit="${esc(k.slug)}" role="button" tabindex="0"
-             aria-pressed="false" aria-label="Escolher ${esc(k.nome)}">
-      <span class="kit-etiqueta" data-etiqueta hidden>Recomendado</span>
-      ${faixaHtml(k)}
-      <h3>${esc(k.nome)}</h3>
-      <p class="kit-resumo">${esc(k.resumo)}</p>
-      <ul>${itensHtml(k)}</ul>
-    </article>
-  `).join('');
-
-  $$('[data-kit]').forEach((card) => {
-    const escolher = () => selecionarKit(card.dataset.kit);
-    card.addEventListener('click', escolher);
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolher(); }
-    });
-  });
-}
-
-function selecionarKit(slug) {
-  kitEscolhido = slug;
-  $$('[data-kit]').forEach((c) => {
-    const ativo = c.dataset.kit === slug;
-    c.classList.toggle('selecionado', ativo);
-    c.setAttribute('aria-pressed', String(ativo));
-  });
-  limparErro('kit');
-  atualizarAvisoKit();
-}
-
-/** Onde o kit fica na escala P < M < G; -1 quando o slug não existe. */
-const nivelKit = (slug) => CFG.kits.findIndex((k) => k.slug === slug);
-
-/** true quando a pessoa escolheu acima do que as respostas dela pedem. */
-function kitAcimaDoRecomendado() {
-  const a = nivelKit(kitEscolhido);
-  const b = nivelKit(kitSugerido);
-  return a >= 0 && b >= 0 && a > b;
-}
-
-/**
- * Avisa, ainda na etapa do kit, que um kit maior não é pedido automático.
- *
- * O servidor recusa esse pedido de qualquer jeito — isto aqui só evita que a
- * pessoa preencha o resto sem saber que vai cair no WhatsApp no fim.
- */
-function atualizarAvisoKit() {
-  const caixa = $('[data-aviso-kit]');
-  if (!caixa) return;
-
-  if (!kitAcimaDoRecomendado()) {
-    caixa.hidden = true;
-    return;
-  }
-
-  const escolhido = CFG.kits.find((k) => k.slug === kitEscolhido);
-  const sugerido = CFG.kits.find((k) => k.slug === kitSugerido);
-  caixa.hidden = false;
-  caixa.innerHTML = `O <b>${esc(escolhido.nome)}</b> é maior que o
-    <b>${esc(sugerido.nome)}</b>, que é o indicado pelas suas respostas. Pode pedir,
-    mas esse a gente confirma por WhatsApp antes de separar — no fim do formulário
-    aparece o link da conversa.`;
-}
-
 function renderUFs() {
   const sel = $('#uf');
   sel.insertAdjacentHTML('beforeend',
@@ -195,10 +129,8 @@ function renderUFs() {
 
 const MAPA_OPCOES = {
   adesivo_carro: 'adesivoCarro',
-  disponibilidade: 'disponibilidade',
-  contatos: 'contatos',
-  distribuidores: 'distribuidores',
-  mora_condominio: 'simNao',
+  adesivo_parachoque: 'adesivoParachoque',
+  alcance: 'alcance',
 };
 
 function renderTodasOpcoes() {
@@ -244,7 +176,6 @@ function mostrarEtapa(n, foco = true) {
   $('[data-etapa-atual]').textContent = etapaAtual;
   $('[data-progresso-barra]').style.width = `${(etapaAtual / TOTAL) * 100}%`;
 
-  if (etapaAtual === 5) sugerirKit();
   if (etapaAtual === TOTAL) montarRevisao();
 
   if (foco) {
@@ -276,7 +207,6 @@ function ligarEventos() {
   $('#cep').addEventListener('blur', buscarCep);
 
   $('[data-compartilhar]').addEventListener('click', compartilhar);
-  $('[data-confirmar-voltar]').addEventListener('click', voltarParaKits);
 
   ligarTopo();
   ligarPortais();
@@ -390,12 +320,10 @@ const REGRAS = {
   ],
   3: [
     ['adesivo_carro', null, 'Diga se você quer o perfurado.'],
+    ['adesivo_parachoque', null, 'Diga se você quer o adesivo de parachoque.'],
   ],
   4: [
-    ['disponibilidade', null, 'Escolha uma opção.'],
-    ['contatos', null, 'Escolha uma opção.'],
-    ['distribuidores', null, 'Escolha uma opção.'],
-    ['mora_condominio', null, 'Escolha uma opção.'],
+    ['alcance', null, 'Escolha uma opção.'],
   ],
 };
 
@@ -413,13 +341,7 @@ function validarEtapa(n) {
     }
   }
 
-  if (n === 5 && !kitEscolhido) {
-    mostrarErro('kit', 'Escolha um dos kits para continuar.');
-    ok = false;
-    primeiroErro ??= 'kit';
-  }
-
-  if (n === 6 && !$('#aceite_lgpd').checked) {
+  if (n === TOTAL && !$('#aceite_lgpd').checked) {
     mostrarErro('aceite_lgpd', 'É preciso autorizar o uso dos dados para o envio.');
     ok = false;
     primeiroErro ??= 'aceite_lgpd';
@@ -453,35 +375,6 @@ function limparErro(campo) {
   $('[data-erro-geral]').textContent = '';
 }
 
-// ---------- recomendação de kit ------------------------------------------
-
-async function sugerirKit() {
-  const caixa = $('[data-recomendacao]');
-  try {
-    const r = await fetch('/api/recomendar', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(coletar()),
-    });
-    const { kit } = await r.json();
-    kitSugerido = kit.slug;
-
-    $$('[data-kit]').forEach((c) => {
-      $('[data-etiqueta]', c).hidden = c.dataset.kit !== kit.slug;
-    });
-
-    caixa.hidden = false;
-    caixa.innerHTML = `Pelas suas respostas, o <b>${esc(kit.nome)}</b> é o que faz mais
-      sentido agora. Pode escolher outro — só que os maiores a gente confirma por
-      WhatsApp antes de separar.`;
-
-    if (!kitEscolhido) selecionarKit(kit.slug);
-    else atualizarAvisoKit();
-  } catch {
-    caixa.hidden = true;
-  }
-}
-
 // ---------- revisão -------------------------------------------------------
 
 function rotuloDe(campo, valor) {
@@ -491,14 +384,14 @@ function rotuloDe(campo, valor) {
 
 function montarRevisao() {
   const d = coletar();
-  const kit = CFG.kits.find((k) => k.slug === kitEscolhido);
 
   const linhas = [
     ['Contato', 1, `${d.nome}<br>${d.email}<br>${d.whatsapp}`],
     ['Entrega', 2, `${d.endereco}, ${d.numero}${d.complemento ? ` — ${d.complemento}` : ''}<br>
                     ${d.bairro ? d.bairro + '<br>' : ''}${d.cidade} / ${d.uf} — CEP ${d.cep}`],
     ['Adesivo perfurado', 3, rotuloDe('adesivo_carro', d.adesivo_carro)],
-    ['Kit escolhido', 5, kit ? `${esc(kit.nome)} — ${esc(kit.itens.map((i) => i.item).join(', '))}` : '—'],
+    ['Adesivo de parachoque', 3, rotuloDe('adesivo_parachoque', d.adesivo_parachoque)],
+    ['Alcance', 4, rotuloDe('alcance', d.alcance)],
   ];
 
   $('[data-revisao]').innerHTML = linhas.map(([titulo, etapa, conteudo]) => `
@@ -526,7 +419,7 @@ function coletar() {
 
 async function enviar(e) {
   e.preventDefault();
-  if (!validarEtapa(6)) return;
+  if (!validarEtapa(TOTAL)) return;
 
   const botao = $('[data-enviar]');
   botao.disabled = true;
@@ -540,18 +433,11 @@ async function enviar(e) {
     });
     const res = await r.json();
 
-    // 422: kit acima do recomendado. O servidor não gravou nada de propósito —
-    // a confirmação (e o cadastro) acontece na conversa com a produção.
-    if (r.status === 422 && res.confirmarKit) {
-      mostrarConfirmacao(res);
-      return;
-    }
-
     if (!r.ok) {
       if (res.campos) {
         for (const [campo, msg] of Object.entries(res.campos)) mostrarErro(campo, msg);
         const etapaDoErro = etapaDoCampo(Object.keys(res.campos)[0]);
-        if (etapaDoErro !== 6) mostrarEtapa(etapaDoErro);
+        if (etapaDoErro !== TOTAL) mostrarEtapa(etapaDoErro);
       }
       $('[data-erro-geral]').textContent = res.erro || 'Não foi possível enviar. Tente de novo.';
       return;
@@ -570,33 +456,7 @@ function etapaDoCampo(campo) {
   for (const [n, regras] of Object.entries(REGRAS)) {
     if (regras.some(([c]) => c === campo)) return Number(n);
   }
-  return campo === 'kit' ? 5 : 6;
-}
-
-function mostrarConfirmacao(res) {
-  const { kit, recomendado, whatsapp } = res.confirmarKit;
-
-  form.hidden = true;
-  $('.progresso').hidden = true;
-
-  const painel = $('[data-confirmar]');
-  painel.hidden = false;
-  $('[data-confirmar-msg]').innerHTML =
-    `Você escolheu o <b>${esc(kit.nome)}</b>, e pelas suas respostas o indicado é o
-     <b>${esc(recomendado.nome)}</b>. Kit maior a gente confirma pessoalmente antes de
-     separar, então <b>seu pedido ainda não foi registrado</b>. Toque no botão abaixo:
-     a mensagem já vai pronta, é só enviar. Se preferir, volte e escolha o
-     ${esc(recomendado.nome)} para o pedido sair na hora.`;
-  $('[data-confirmar-whatsapp]').href = whatsapp;
-  painel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-/** Volta do painel de confirmação para a etapa do kit, com tudo preenchido. */
-function voltarParaKits() {
-  $('[data-confirmar]').hidden = true;
-  form.hidden = false;
-  $('.progresso').hidden = false;
-  mostrarEtapa(5);
+  return TOTAL;
 }
 
 function mostrarSucesso(res) {

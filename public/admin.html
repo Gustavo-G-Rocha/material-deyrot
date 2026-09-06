@@ -197,11 +197,13 @@ const ROTULOS = {
   so_eu: 'só ele(a)', algumas: 'algumas pessoas', varias: 'várias pessoas',
   quero: 'quer', prefiro_outros: 'prefere outros', so_kit: 'só o kit',
   sem_carro: 'não tem', sem_moto: 'não tem', sim: 'sim', nao: 'não',
+  '1_a_10': '1 a 10 pessoas', '11_a_30': '11 a 30 pessoas', '31_a_50': '31 a 50 pessoas',
 };
 
 // 'sim' é o valor de hoje; 'quero' é o dos pedidos feitos quando a pergunta
 // do adesivo de carro ainda tinha quatro opções.
 const QUER_PERFURADO = new Set(['sim', 'quero']);
+const QUER_PARACHOQUE = new Set(['sim']);
 const rot = (v) => ROTULOS[v] ?? (v || '—');
 
 /**
@@ -442,9 +444,11 @@ function render(resumo, pedidos) {
             <th>Revisão</th><th>Sinais</th><th>Observações</th>
             <th>Nome</th><th>WhatsApp</th><th>E-mail</th>
             <th>CEP</th><th>Cidade/UF</th><th>Bairro</th><th>Endereço</th><th>Nº</th><th>Compl.</th>
-            <th>Perfurado</th><th>Contato</th>
+            <th>Perfurado</th><th>Parachoque</th><th>Contato</th>
             <th>Kit</th><th>Kit sugerido</th><th>Vai enviar</th>
-            <th>Tempo</th><th>Alcance</th><th>Distribui</th><th>Condomínio</th><th>Unidades</th>
+            <th>Alcance</th>
+            <th>Tempo (antigo)</th><th>Contatos (antigo)</th><th>Distribui (antigo)</th>
+            <th>Condomínio (antigo)</th><th>Unidades (antigo)</th>
             <th>LGPD</th>
           </tr>
         </thead>
@@ -541,6 +545,7 @@ function linha(p) {
     <td>${esc(p.numero)}</td>
     <td>${esc(p.complemento || '—')}</td>
     <td>${QUER_PERFURADO.has(p.adesivo_carro) ? 'sim' : esc(rot(p.adesivo_carro))}</td>
+    <td>${QUER_PARACHOQUE.has(p.adesivo_parachoque) ? 'sim' : esc(rot(p.adesivo_parachoque))}</td>
     <td>${QUER_PERFURADO.has(p.adesivo_carro) ? '<span class="pill alerta">necessita contato</span>' : '—'}</td>
     <td><span class="pill">${esc(p.kit)}</span></td>
     <td>${esc(p.kit_recomendado)}</td>
@@ -551,6 +556,7 @@ function linha(p) {
         <b>${envio.total}</b> ${p.envio_editado ? 'ajustado' : 'padrão'}
       </span>
     </td>
+    <td>${esc(rot(p.alcance))}</td>
     <td>${esc(rot(p.disponibilidade))}</td>
     <td>${esc(rot(p.contatos))}</td>
     <td>${esc(rot(p.distribuidores))}</td>

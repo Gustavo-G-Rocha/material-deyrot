@@ -54,18 +54,6 @@ export const campanha = {
     privacidade: '/privacidade',
     compartilhar:
       'Pedi meu material de campanha pra ajudar na rua. Peça o seu também:',
-
-    /**
-     * Kit acima do recomendado não entra no sistema: o pedido seguiria direto
-     * para a pré-expedição e alguém teria que parar a fila e conferir um por
-     * um. Em vez disso a pessoa fala com a produção pelo WhatsApp e a
-     * confirmação (e o cadastro) é feita à mão de lá.
-     *
-     * `confirmacaoNumero` é só dígitos, no formato que o wa.me aceita:
-     * código do país + DDD + número.
-     */
-    confirmacaoNumero: '5541988829438',
-    confirmacaoTexto: 'Oi, tudo bom? O kit que eu quero no site é maior do que o solicitado.',
   },
 
   /**
@@ -106,14 +94,10 @@ export const campanha = {
 };
 
 /**
- * Kits disponíveis, do menor para o maior. A ORDEM IMPORTA: é ela que define
- * o que é "kit maior" — pedir acima do recomendado manda a pessoa confirmar
- * pelo WhatsApp em vez de gravar o pedido (veja links.confirmacaoNumero).
- *
- * `pontos` é a nota mínima de engajamento para o kit ser recomendado
- * automaticamente (ver calcularEngajamento em lib/scoring.js) e `faixa` é
- * como essa regra aparece para a pessoa. O Kit P fica com pontos 0 porque é
- * o piso: qualquer nota abaixo de 7 cai nele.
+ * Kits disponíveis. O formulário não pergunta mais o perfil de quem pede —
+ * todo pedido sai como Kit M (ver validarPedido em lib/validacao.js). P e G
+ * ficam no catálogo só para a vitrine pública (seção "Um kit para cada
+ * ritmo") e para ajuste manual no painel, se um dia for preciso.
  *
  * O `qtd` de cada item NÃO aparece no site — a vitrine lista só o que vem no
  * kit, sem número. Ele serve para o padrão de separação (lib/envio.js) e para
@@ -125,8 +109,6 @@ export const kits = [
     slug: 'p',
     nome: 'Kit P',
     resumo: 'Para quem está começando a divulgar entre conhecidos.',
-    pontos: 0,
-    faixa: '4 a 6 pontos',
     itens: [
       { qtd: 10, item: 'santões', slug: 'santoes' },
       { qtd: 10, item: 'colinhas', slug: 'colinhas' },
@@ -137,8 +119,6 @@ export const kits = [
     slug: 'm',
     nome: 'Kit M',
     resumo: 'Dá para cobrir a sua rua e o comércio mais próximo.',
-    pontos: 7,
-    faixa: '7 a 9 pontos',
     itens: [
       { qtd: 30, item: 'santões', slug: 'santoes' },
       { qtd: 30, item: 'colinhas', slug: 'colinhas' },
@@ -150,8 +130,6 @@ export const kits = [
     slug: 'g',
     nome: 'Kit G',
     resumo: 'Para quem já tem um grupo ajudando na distribuição.',
-    pontos: 10,
-    faixa: '10 pontos ou mais',
     itens: [
       { qtd: 50, item: 'santões', slug: 'santoes' },
       { qtd: 50, item: 'colinhas', slug: 'colinhas' },
@@ -176,37 +154,35 @@ export const itensEnvio = [
   { slug: 'praguinhas', rotulo: 'Praguinhas de celular' },
   { slug: 'pragoes', rotulo: 'Pragões' },
   { slug: 'adesivo_carro', rotulo: 'Perfurado de vidro traseiro' },
+  { slug: 'adesivo_parachoque', rotulo: 'Adesivo de parachoque' },
 ];
 
 /** Opções dos campos de escolha — usadas no form e validadas no servidor. */
 export const opcoes = {
   /**
    * Um adesivo só, e explícito: perfurado de vidro traseiro, sim ou não.
-   * Parachoque e adesivo de moto saíram porque cada formato vira um padrão
-   * de envio diferente — junto ficam caros e travam a produção.
+   * Adesivo de moto saiu porque cada formato vira um padrão de envio
+   * diferente — junto ficam caros e travam a produção. O de parachoque
+   * entrou como uma segunda pergunta separada (ver adesivoParachoque).
    */
   adesivoCarro: [
     { valor: 'sim', rotulo: 'Sim, quero o perfurado de vidro traseiro' },
     { valor: 'nao', rotulo: 'Não, quero receber só o kit' },
   ],
-  disponibilidade: [
-    { valor: 'ate_1h', rotulo: 'Até 1 hora', pontos: 1 },
-    { valor: '1_a_3h', rotulo: 'De 1 a 3 horas', pontos: 2 },
-    { valor: 'mais_3h', rotulo: 'Mais de 3 horas', pontos: 3 },
+  adesivoParachoque: [
+    { valor: 'sim', rotulo: 'Sim, quero o adesivo de parachoque' },
+    { valor: 'nao', rotulo: 'Não, quero receber só o kit' },
   ],
-  contatos: [
-    { valor: 'ate_10', rotulo: 'Até 10 pessoas', pontos: 1 },
-    { valor: '10_a_30', rotulo: 'De 10 a 30 pessoas', pontos: 2 },
-    { valor: 'mais_30', rotulo: 'Mais de 30 pessoas', pontos: 3 },
-  ],
-  distribuidores: [
-    { valor: 'so_eu', rotulo: 'Por enquanto, só eu mesmo', pontos: 1 },
-    { valor: 'algumas', rotulo: 'Sim, algumas pessoas', pontos: 2 },
-    { valor: 'varias', rotulo: 'Sim, várias pessoas', pontos: 3 },
-  ],
-  simNao: [
-    { valor: 'nao', rotulo: 'Não' },
-    { valor: 'sim', rotulo: 'Sim' },
+  /**
+   * Substitui as antigas perguntas de perfil (disponibilidade, contatos,
+   * distribuidores, condomínio): uma flag só de quantas pessoas o pedido
+   * tende a alcançar, pra decidir se vale mandar reforço de material.
+   * Não define mais o tamanho do kit — todo pedido sai como Kit M.
+   */
+  alcance: [
+    { valor: '1_a_10', rotulo: '1 a 10 pessoas' },
+    { valor: '11_a_30', rotulo: '11 a 30 pessoas' },
+    { valor: '31_a_50', rotulo: '31 a 50 pessoas' },
   ],
 };
 
@@ -253,27 +229,6 @@ export const integracoes = {
   planilhaUrl: process.env.PLANILHA_URL
     || 'https://script.google.com/macros/s/AKfycbzdP5KhAym6euXMt_ob90bADCdtyZHZoxqVPG6ScbF8UMctS-bdlTZ2TyCxio4-vt17/exec',
 };
-
-/**
- * Link do WhatsApp da produção para quem escolheu um kit acima do recomendado.
- *
- * O pedido não é gravado nesses casos, então a mensagem já vai com o que a
- * produção precisa para confirmar e cadastrar à mão: quem é, o que quer e o
- * que o site tinha sugerido.
- */
-export function linkConfirmacaoKit({ nome, cidade, uf, kit, kitRecomendado } = {}) {
-  const detalhes = [
-    ['Nome', nome],
-    ['Kit que eu quero', kit],
-    ['Kit que o site recomendou', kitRecomendado],
-    ['Cidade', cidade && `${cidade}${uf ? `/${uf}` : ''}`],
-  ].filter(([, valor]) => valor).map(([rotulo, valor]) => `${rotulo}: ${valor}`);
-
-  const texto = [campanha.links.confirmacaoTexto, ...(detalhes.length ? [''] : []), ...detalhes]
-    .join('\n');
-
-  return `https://wa.me/${campanha.links.confirmacaoNumero}?text=${encodeURIComponent(texto)}`;
-}
 
 /** Config pública entregue ao navegador (nada sensível aqui). */
 export function configPublica() {

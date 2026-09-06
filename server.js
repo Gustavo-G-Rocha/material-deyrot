@@ -2,11 +2,9 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 
-import { configPublica, itensEnvio, linkConfirmacaoKit } from './config.js';
+import { configPublica, itensEnvio } from './config.js';
 import { validarPedido } from './lib/validacao.js';
-import {
-  calcularEngajamento, kitRecomendado, kitPorSlug, kitAcimaDoRecomendado,
-} from './lib/scoring.js';
+import { kitPorSlug } from './lib/scoring.js';
 import {
   temBanco, descreverConexao, esperarBanco, migrar, criarPedido, listarPedidos,
   contarPedidos, atualizarStatus, atualizarRevisao, atualizarEnvio, exportarCsv, fecharBanco,
@@ -167,13 +165,6 @@ const servidor = http.createServer(async (req, res) => {
         : json(res, 404, { erro: 'CEP não encontrado' });
     }
 
-    if (rota === '/api/recomendar' && req.method === 'POST') {
-      const body = await lerJson(req);
-      const nota = calcularEngajamento(body);
-      const kit = kitRecomendado(nota);
-      return json(res, 200, { engajamento: nota, kit });
-    }
-
     if (rota === '/api/pedidos' && req.method === 'POST') {
       if (SEM_BANCO) {
         return json(res, 503, {
@@ -198,39 +189,6 @@ const servidor = http.createServer(async (req, res) => {
       if (!v.ok) return json(res, 400, { erro: 'Dados inválidos', campos: v.erros });
 
       const dados = v.dados;
-      dados.engajamento = calcularEngajamento(dados);
-      dados.kit_recomendado = kitRecomendado(dados.engajamento).slug;
-
-      /*
-       * Kit acima do recomendado não entra no banco.
-       *
-       * O que é gravado aqui vai direto para a pré-expedição, e um kit maior
-       * do que o perfil pede precisa do aval da produção. Gravar obrigaria a
-       * parar a fila e conferir pedido por pedido antes de imprimir etiqueta;
-       * em vez disso a pessoa fala com a produção pelo WhatsApp, que confirma
-       * e cadastra à mão. O front recebe o link já com a mensagem pronta.
-       */
-      if (kitAcimaDoRecomendado(dados.kit, dados.kit_recomendado)) {
-        const pedido = kitPorSlug(dados.kit);
-        const sugerido = kitPorSlug(dados.kit_recomendado);
-        return json(res, 422, {
-          erro: `O ${pedido.nome} é maior do que o ${sugerido.nome}, que é o indicado `
-              + 'pelas suas respostas. Fale com a gente no WhatsApp para confirmar — '
-              + 'seu pedido ainda não foi registrado.',
-          confirmarKit: {
-            kit: pedido,
-            recomendado: sugerido,
-            whatsapp: linkConfirmacaoKit({
-              nome: dados.nome,
-              cidade: dados.cidade,
-              uf: dados.uf,
-              kit: pedido.nome,
-              kitRecomendado: sugerido.nome,
-            }),
-          },
-        });
-      }
-
       dados.ip = ip;
       dados.user_agent = (req.headers['user-agent'] || '').slice(0, 300);
 

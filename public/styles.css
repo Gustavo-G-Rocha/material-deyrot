@@ -75,43 +75,12 @@
   transition: border-color .2s ease, transform .2s ease;
 }
 .kit h3 { text-transform: uppercase; letter-spacing: .04em; font-size: 1.25rem; }
-/* faixa de pontuação: a regra que faz o kit ser recomendado, dita na cara */
-.kit-faixa {
-  align-self: flex-start;
-  font-family: var(--fonte-cond); font-size: .7rem;
-  text-transform: uppercase; letter-spacing: .1em;
-  color: var(--acento-claro);
-  border: 1px solid var(--linha); border-radius: 999px;
-  background: var(--veu-1); padding: 3px 11px;
-}
 .kit-resumo { color: var(--tinta-fraca); font-size: .9rem; }
 .kit ul { list-style: none; display: grid; gap: 7px; font-size: .94rem; margin-top: 4px; }
 .kit li { display: flex; gap: 10px; align-items: baseline; }
 .kit li b {
   font-family: var(--fonte-cond); color: var(--acento-claro);
   min-width: 3.4em; text-align: right; font-size: 1rem;
-}
-
-.grade-kits-escolha .kit { cursor: pointer; }
-.grade-kits-escolha .kit:hover { border-color: var(--acento); transform: translateY(-3px); }
-.grade-kits-escolha .kit.selecionado {
-  border-color: var(--acento);
-  background: var(--veu-1);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--acento) 35%, transparent);
-}
-.grade-kits-escolha .kit.selecionado::after {
-  content: "✓"; position: absolute; top: 16px; right: 18px;
-  width: 26px; height: 26px; border-radius: 50%;
-  background: var(--acento); color: var(--acento-tinta);
-  display: grid; place-items: center; font-size: .82rem; font-weight: 700;
-}
-.kit-etiqueta {
-  align-self: flex-start;
-  font-family: var(--fonte-cond); font-size: .68rem;
-  text-transform: uppercase; letter-spacing: .08em;
-  color: var(--acento-tinta);
-  background: linear-gradient(135deg, var(--acento-claro), var(--acento-escuro));
-  padding: 3px 10px; border-radius: 999px;
 }
 
 /* ---------- adesivo ---------- */
@@ -234,24 +203,6 @@
 .opcao:has(input:checked) { border-color: var(--acento); background: var(--veu-2); }
 .condicional { margin-top: 16px; }
 
-.recomendacao {
-  background: var(--veu-2); border: 1px solid var(--linha);
-  border-radius: var(--raio-sm); padding: 16px 20px; margin-bottom: 24px;
-  font-size: .95rem; color: var(--tinta-fraca);
-}
-.recomendacao b { color: var(--acento-claro); font-family: var(--fonte-cond); letter-spacing: .03em; }
-
-/* kit acima do recomendado: pedido não é gravado, vai confirmar no WhatsApp */
-.aviso-kit {
-  margin-top: 24px; padding: 16px 20px;
-  border: 1px solid color-mix(in srgb, var(--acento) 55%, transparent);
-  border-left-width: 3px;
-  border-radius: var(--raio-sm);
-  background: color-mix(in srgb, var(--acento) 8%, var(--fundo-2));
-  font-size: .95rem; color: var(--tinta-fraca);
-}
-.aviso-kit b { color: var(--acento-claro); font-family: var(--fonte-cond); letter-spacing: .03em; }
-
 /* revisão */
 .revisao { display: grid; gap: 12px; margin-bottom: 26px; }
 .revisao-item {
@@ -291,10 +242,6 @@
   display: grid; place-items: center; font-size: 2rem;
   color: var(--acento-tinta);
   background: linear-gradient(135deg, var(--ok), color-mix(in srgb, var(--ok) 60%, black));
-}
-.sucesso-icone-atencao {
-  background: linear-gradient(135deg, var(--acento-claro), var(--acento-escuro));
-  font-family: var(--fonte-cond);
 }
 .sucesso p { color: var(--tinta-fraca); margin-top: 14px; }
 .sucesso b { color: var(--tinta); }

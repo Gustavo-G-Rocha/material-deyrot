@@ -131,67 +131,44 @@
 
         <!-- ETAPA 3 -->
         <fieldset class="etapa" data-etapa="3" hidden>
-          <legend>Adesivo perfurado</legend>
+          <legend>Adesivos</legend>
 
           <div class="bloco">
             <h3>Você quer o adesivo perfurado de vidro traseiro?</h3>
             <p class="ajuda ajuda-topo">
-              É o único adesivo que a gente envia: perfurado, para o vidro de trás do
-              carro. Não tem parachoque nem adesivo de moto, e vai <strong>um por
+              É perfurado, para o vidro de trás do carro, e vai <strong>um por
               pedido</strong>. Ele não vem dentro do kit — a gente separa à parte e
               fala com você antes de enviar.
             </p>
             <div class="opcoes" data-opcoes="adesivo_carro"></div>
             <p class="erro" data-erro="adesivo_carro"></p>
           </div>
+
+          <div class="bloco">
+            <h3>Você quer o adesivo de parachoque?</h3>
+            <p class="ajuda ajuda-topo">
+              Vai <strong>um por pedido</strong>. Ele também não vem dentro do kit —
+              a gente separa à parte e fala com você antes de enviar.
+            </p>
+            <div class="opcoes" data-opcoes="adesivo_parachoque"></div>
+            <p class="erro" data-erro="adesivo_parachoque"></p>
+          </div>
         </fieldset>
 
         <!-- ETAPA 4 -->
         <fieldset class="etapa" data-etapa="4" hidden>
-          <legend>Quanto você consegue ajudar</legend>
-          <p class="ajuda ajuda-topo">Não tem resposta certa. Isso só nos ajuda a mandar a quantidade certa de material.</p>
+          <legend>Alcance</legend>
 
           <div class="bloco">
-            <h3>Quanto tempo por semana você tem para distribuir?</h3>
-            <div class="opcoes" data-opcoes="disponibilidade"></div>
-            <p class="erro" data-erro="disponibilidade"></p>
-          </div>
-
-          <div class="bloco">
-            <h3>Quantas pessoas você fala com frequência no dia a dia?</h3>
-            <div class="opcoes" data-opcoes="contatos"></div>
-            <p class="erro" data-erro="contatos"></p>
-          </div>
-
-          <div class="bloco">
-            <h3>Você repassaria material para outras pessoas distribuírem?</h3>
-            <div class="opcoes" data-opcoes="distribuidores"></div>
-            <p class="erro" data-erro="distribuidores"></p>
-          </div>
-
-          <div class="bloco">
-            <h3>Você mora em condomínio ou prédio?</h3>
-            <div class="opcoes" data-opcoes="mora_condominio"></div>
-            <p class="erro" data-erro="mora_condominio"></p>
-            <div class="campo condicional" data-quando="mora_condominio=sim" hidden>
-              <label for="unidades_condominio">Quantas unidades tem o condomínio? <span class="opcional">(opcional)</span></label>
-              <input id="unidades_condominio" name="unidades_condominio" type="number" min="1" max="5000">
-            </div>
+            <h3>Quantas pessoas você acha que vai atingir com o material?</h3>
+            <p class="ajuda ajuda-topo">Isso só nos ajuda a saber se vale mandar reforço depois.</p>
+            <div class="opcoes" data-opcoes="alcance"></div>
+            <p class="erro" data-erro="alcance"></p>
           </div>
         </fieldset>
 
         <!-- ETAPA 5 -->
         <fieldset class="etapa" data-etapa="5" hidden>
-          <legend>Escolha seu kit</legend>
-          <div class="recomendacao" data-recomendacao hidden></div>
-          <div class="grade-kits grade-kits-escolha" data-kits-escolha></div>
-          <p class="erro" data-erro="kit"></p>
-          <!-- kit acima do recomendado: o pedido não é gravado, vai para o WhatsApp -->
-          <div class="aviso-kit" data-aviso-kit hidden></div>
-        </fieldset>
-
-        <!-- ETAPA 6 -->
-        <fieldset class="etapa" data-etapa="6" hidden>
           <legend>Confira e confirme</legend>
           <div class="revisao" data-revisao></div>
 
@@ -214,19 +191,6 @@
           <button type="submit" class="btn btn-primario" data-enviar hidden>Pedir meu material</button>
         </div>
       </form>
-
-      <!-- KIT MAIOR QUE O RECOMENDADO: confirmação pelo WhatsApp, sem gravar -->
-      <div class="sucesso sucesso-confirmar" data-confirmar hidden>
-        <div class="sucesso-icone sucesso-icone-atencao">!</div>
-        <h2>Falta confirmar com a gente</h2>
-        <p data-confirmar-msg></p>
-        <div class="sucesso-acoes">
-          <a class="btn btn-primario" data-confirmar-whatsapp target="_blank" rel="noopener">
-            Confirmar no WhatsApp
-          </a>
-          <button class="btn btn-vazado" data-confirmar-voltar>Escolher outro kit</button>
-        </div>
-      </div>
 
       <!-- SUCESSO -->
       <div class="sucesso" data-sucesso hidden>
@@ -297,12 +261,12 @@
       <li>
         <span class="passo-num">1</span>
         <h3>Você preenche o formulário</h3>
-        <p>Contato, endereço de entrega e algumas perguntas rápidas sobre quanto tempo você tem para ajudar.</p>
+        <p>Contato, endereço de entrega e algumas perguntas rápidas sobre os adesivos e o alcance do material.</p>
       </li>
       <li>
         <span class="passo-num">2</span>
-        <h3>A gente sugere o kit certo</h3>
-        <p>Com base nas suas respostas, indicamos o tamanho que faz sentido. Você pode escolher outro se quiser.</p>
+        <h3>A gente separa o seu kit</h3>
+        <p>Todo pedido sai com a mesma composição padrão, pronta para retirada ou entrega.</p>
       </li>
       <li>
         <span class="passo-num">3</span>
