@@ -39,6 +39,8 @@
       text-transform: uppercase; background: var(--veu-2); border: 1px solid var(--linha);
       color: var(--acento-claro);
     }
+    /* pedido de perfurado sempre passa por contato antes do envio */
+    .pill.alerta { color: var(--acento-tinta); background: var(--acento); border-color: var(--acento); }
     .nota { font-family: var(--fonte-titulo); font-size: 1.05rem; color: var(--acento-claro); }
 
     select.status {
@@ -49,18 +51,90 @@
     .aviso { background: var(--fundo-2); border: 1px solid var(--linha-fraca); border-radius: var(--raio); padding: 2.5rem; text-align: center; color: var(--tinta-fraca); }
     .aviso h2 { font-family: var(--fonte-titulo); text-transform: uppercase; color: var(--tinta); margin-bottom: .6rem; }
     .aviso code { background: var(--fundo-3); padding: .12rem .4rem; border-radius: 4px; color: var(--acento-claro); }
+
+    /* login */
+    .entrada { max-width: 380px; margin: 8vh auto; }
+    .entrada h1 { font-family: var(--fonte-titulo); font-size: 1.6rem; text-transform: uppercase; letter-spacing: .5px; text-align: center; }
+    .entrada .sub { color: var(--tinta-fraca); font-size: .88rem; text-align: center; margin: .4rem 0 1.6rem; }
+    .entrada form { background: var(--fundo-2); border: 1px solid var(--linha-fraca); border-radius: var(--raio); padding: 1.6rem; display: grid; gap: 1rem; }
+    .entrada label { display: block; font-family: var(--fonte-cond); font-size: .74rem; text-transform: uppercase; letter-spacing: .1em; color: var(--tinta-fraca); margin-bottom: .4rem; }
+    .entrada input {
+      width: 100%; padding: .7rem .8rem; font: inherit; color: var(--tinta);
+      background: var(--fundo-3); border: 1px solid var(--linha-fraca); border-radius: 8px;
+    }
+    .entrada input:focus { outline: 2px solid var(--acento); outline-offset: 1px; }
+    .entrada .erro { color: #ff8f8f; font-size: .85rem; min-height: 1.2em; }
+    .quem { color: var(--tinta-fraca); font-size: .82rem; }
+
+    /* conferência antifraude */
+    .sinal {
+      display: inline-block; margin: 1px 2px 1px 0; padding: .1rem .45rem;
+      border-radius: 999px; font-family: var(--fonte-cond); font-size: .7rem;
+      letter-spacing: .03em; white-space: nowrap; cursor: help;
+      color: #ffb4b4; background: rgba(255, 90, 90, .12); border: 1px solid rgba(255, 90, 90, .35);
+    }
+    .sinal.brando { color: var(--tinta-fraca); background: var(--veu-2); border-color: var(--linha); }
+    tr.linha-suspeita { background: rgba(255, 90, 90, .07); }
+    tr.linha-suspeita:hover { background: rgba(255, 90, 90, .12); }
+    tr.linha-aprovada td:first-child { box-shadow: inset 3px 0 0 var(--acento); }
+    .cartao.alerta .n { color: #ff8f8f; }
+    .obs { max-width: 220px; white-space: normal; color: var(--tinta-fraca); font-size: .8rem; }
+    .btn-nota {
+      font: inherit; font-size: .75rem; cursor: pointer; padding: .15rem .4rem;
+      background: var(--fundo-3); color: var(--tinta-fraca);
+      border: 1px solid var(--linha-fraca); border-radius: 5px;
+    }
+    .btn-nota:hover { color: var(--tinta); }
+    select.status.rev-suspeito { border-color: rgba(255, 90, 90, .6); color: #ffb4b4; }
+    select.status.rev-aprovado { border-color: var(--acento); color: var(--acento-claro); }
+
+    /* quantidades a despachar */
+    .envio-resumo { font-size: .8rem; color: var(--tinta-fraca); }
+    .envio-resumo b { color: var(--tinta); font-weight: 600; }
+    .btn-envio {
+      font: inherit; font-size: .75rem; cursor: pointer; padding: .2rem .5rem; margin-right: .4rem;
+      background: var(--fundo-3); color: var(--tinta); border: 1px solid var(--linha-fraca); border-radius: 5px;
+    }
+    .btn-envio:hover { border-color: var(--acento); }
+    .btn-envio.editado { border-color: var(--acento); color: var(--acento-claro); }
+
+    dialog.caixa {
+      border: 1px solid var(--linha); border-radius: var(--raio); padding: 0;
+      background: var(--fundo-2); color: var(--tinta); max-width: 420px; width: 92vw;
+    }
+    dialog.caixa::backdrop { background: rgba(0, 0, 0, .6); }
+    dialog.caixa h3 { font-family: var(--fonte-titulo); text-transform: uppercase; font-size: 1.1rem; }
+    .caixa-topo { padding: 1.2rem 1.3rem .6rem; }
+    .caixa-topo .d { color: var(--tinta-fraca); font-size: .84rem; margin-top: .2rem; }
+    .caixa-itens { padding: .4rem 1.3rem 1rem; display: grid; gap: .55rem; }
+    .caixa-item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .caixa-item label { font-size: .88rem; }
+    .caixa-item .padrao { color: var(--tinta-suave); font-size: .75rem; }
+    .caixa-item input {
+      width: 5.5rem; padding: .4rem .5rem; font: inherit; text-align: right;
+      background: var(--fundo-3); color: var(--tinta);
+      border: 1px solid var(--linha-fraca); border-radius: 6px;
+    }
+    .caixa-item input:focus { outline: 2px solid var(--acento); outline-offset: 1px; }
+    .caixa-pe {
+      display: flex; gap: .6rem; justify-content: flex-end; align-items: center;
+      padding: .9rem 1.3rem; border-top: 1px solid var(--linha-fraca); background: var(--fundo-3);
+    }
+    .caixa-pe .esq { margin-right: auto; }
   </style>
 </head>
 <body>
-<div class="wrap painel">
+<div class="wrap painel" id="painel" hidden>
   <div class="painel-cabeca">
     <div>
       <h1>Pedidos de material</h1>
       <p class="sub">Ordenado por engajamento — quem rende mais aparece primeiro.</p>
     </div>
-    <div style="display:flex;gap:.6rem">
+    <div style="display:flex;gap:.6rem;align-items:center">
+      <span class="quem" id="quem"></span>
       <button class="btn btn-vazado btn-sm" id="recarregar">Atualizar</button>
-      <a class="btn btn-primario btn-sm" id="exportar">Baixar CSV</a>
+      <a class="btn btn-primario btn-sm" href="/api/admin/export.csv">Baixar CSV</a>
+      <button class="btn btn-vazado btn-sm" id="sair">Sair</button>
     </div>
   </div>
 
@@ -69,47 +143,279 @@
   </div>
 </div>
 
+<div class="wrap entrada" id="entrada" hidden>
+  <h1>Painel de pedidos</h1>
+  <p class="sub">Acesso restrito à equipe da campanha.</p>
+  <form id="form-entrada">
+    <div>
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" autocomplete="username" required autofocus>
+    </div>
+    <div>
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" name="senha" autocomplete="current-password" required>
+    </div>
+    <p class="erro" id="erro-entrada"></p>
+    <button class="btn btn-primario" type="submit" id="botao-entrar">Entrar</button>
+  </form>
+</div>
+
+<dialog class="caixa" id="dlg-envio">
+  <form method="dialog" id="form-envio">
+    <div class="caixa-topo">
+      <h3>O que vai ser enviado</h3>
+      <p class="d" id="envio-quem"></p>
+    </div>
+    <div class="caixa-itens" id="envio-itens"></div>
+    <div class="caixa-pe">
+      <button type="button" class="btn-envio esq" id="envio-padrao">Voltar ao padrão do kit</button>
+      <button type="button" class="btn btn-vazado btn-sm" id="envio-cancelar">Cancelar</button>
+      <button type="submit" class="btn btn-primario btn-sm">Salvar</button>
+    </div>
+  </form>
+</dialog>
+
 <script type="module">
-const token = new URLSearchParams(location.search).get('token') || '';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const STATUS = ['novo', 'separado', 'enviado', 'entregue', 'cancelado'];
+const REVISOES = ['pendente', 'aprovado', 'suspeito'];
+const ORDEM_KIT = ['p', 'm', 'g'];
+
 let filtroStatus = '';
+let filtroRevisao = '';
 
-$('#exportar').href = `/api/admin/export.csv?token=${encodeURIComponent(token)}`;
+// Catálogo de itens (vem do servidor junto da lista) e o pedido aberto no editor.
+let CATALOGO = [];
+let editando = null;
+
+// No banco fica o valor cru do formulário; aqui vira algo legível na tabela.
+const ROTULOS = {
+  ate_1h: 'até 1h', '1_a_3h': '1 a 3h', mais_3h: 'mais de 3h',
+  ate_10: 'até 10', '10_a_30': '10 a 30', mais_30: 'mais de 30',
+  so_eu: 'só ele(a)', algumas: 'algumas pessoas', varias: 'várias pessoas',
+  quero: 'quer', prefiro_outros: 'prefere outros', so_kit: 'só o kit',
+  sem_carro: 'não tem', sem_moto: 'não tem', sim: 'sim', nao: 'não',
+};
+
+// 'sim' é o valor de hoje; 'quero' é o dos pedidos feitos quando a pergunta
+// do adesivo de carro ainda tinha quatro opções.
+const QUER_PERFURADO = new Set(['sim', 'quero']);
+const rot = (v) => ROTULOS[v] ?? (v || '—');
+
+/**
+ * Sinais de que o pedido merece uma olhada antes de despachar.
+ *
+ * Nenhum deles prova fraude sozinho — o mesmo IP é normal numa família, e
+ * marido e mulher dividem endereço. São pistas para a conferência humana,
+ * por isso o painel mostra e não bloqueia nada automaticamente.
+ */
+function sinaisDe(p) {
+  const s = [];
+
+  if (p.n_mesmo_ip > 0) {
+    s.push([`${p.n_mesmo_ip + 1}× mesmo IP`,
+      `${p.n_mesmo_ip + 1} pedidos vieram da mesma conexão de internet. Pode ser a mesma casa — ou a mesma pessoa se cadastrando várias vezes.`]);
+  }
+  if (p.n_mesmo_endereco > 0) {
+    s.push([`${p.n_mesmo_endereco + 1}× mesmo endereço`,
+      `Mesmo CEP, número e complemento de outro(s) ${p.n_mesmo_endereco} pedido(s). A porta é exatamente a mesma.`]);
+  }
+  if (p.n_mesmo_nome > 0) {
+    s.push([`${p.n_mesmo_nome + 1}× mesmo nome`,
+      'Outro pedido usa exatamente este nome, com WhatsApp diferente.']);
+  }
+  if (p.n_mesmo_email > 0) {
+    s.push([`${p.n_mesmo_email + 1}× mesmo e-mail`,
+      'O mesmo e-mail aparece em mais de um pedido, com WhatsApp diferente.']);
+  }
+  if (p.disponibilidade === 'mais_3h' && p.contatos === 'mais_30' && p.distribuidores === 'varias') {
+    s.push(['perfil no máximo',
+      'Respondeu o topo em todas as perguntas de perfil, o que puxa a nota e o kit para cima. Vale confirmar por WhatsApp.']);
+  }
+  if (ORDEM_KIT.indexOf(p.kit) > ORDEM_KIT.indexOf(p.kit_recomendado)) {
+    s.push([`pediu ${String(p.kit).toUpperCase()}, sugerido ${String(p.kit_recomendado).toUpperCase()}`,
+      'Kit maior do que o perfil indicava. O site não grava mais esses pedidos — '
+      + 'ele manda a pessoa confirmar no WhatsApp. Então este aqui é antigo ou foi '
+      + 'cadastrado à mão depois da confirmação.']);
+  }
+  if (!p.user_agent) {
+    s.push(['sem navegador',
+      'O pedido chegou sem identificação de navegador — típico de envio automatizado.']);
+  }
+  if (p.mora_condominio === 'sim' && Number(p.unidades_condominio) >= 300) {
+    s.push([`${p.unidades_condominio} unidades`,
+      'Número de unidades do condomínio bem alto, e ele soma pontos na nota. Confirme antes de mandar kit grande.']);
+  }
+
+  return s;
+}
+
 $('#recarregar').addEventListener('click', carregar);
+$('#form-entrada').addEventListener('submit', entrar);
+$('#sair').addEventListener('click', async () => {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  mostrarEntrada();
+});
 
-carregar();
+$('#form-envio').addEventListener('submit', salvarEnvio);
+$('#envio-cancelar').addEventListener('click', () => $('#dlg-envio').close());
+$('#envio-padrao').addEventListener('click', () => gravarEnvio(editando.id, null));
+
+iniciar();
+
+// --- sessão --------------------------------------------------------------
+
+async function iniciar() {
+  const r = await fetch('/api/admin/eu');
+  if (!r.ok) return mostrarEntrada();
+  const { usuario } = await r.json();
+  mostrarPainel(usuario);
+}
+
+function mostrarEntrada() {
+  $('#painel').hidden = true;
+  $('#entrada').hidden = false;
+  $('#email').focus();
+}
+
+function mostrarPainel(usuario) {
+  $('#entrada').hidden = true;
+  $('#painel').hidden = false;
+  $('#quem').textContent = usuario.nome;
+  carregar();
+}
+
+async function entrar(evento) {
+  evento.preventDefault();
+  const botao = $('#botao-entrar');
+  botao.disabled = true;
+  $('#erro-entrada').textContent = '';
+
+  try {
+    const r = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: $('#email').value, senha: $('#senha').value }),
+    });
+    const dados = await r.json().catch(() => ({}));
+
+    if (!r.ok) {
+      $('#erro-entrada').textContent = dados.erro || 'Não foi possível entrar.';
+      $('#senha').select();
+      return;
+    }
+    $('#senha').value = '';
+    mostrarPainel(dados.usuario);
+  } catch {
+    $('#erro-entrada').textContent = 'Sem conexão com o servidor.';
+  } finally {
+    botao.disabled = false;
+  }
+}
+
+// --- dados ---------------------------------------------------------------
 
 async function carregar() {
-  const url = `/api/admin/pedidos?token=${encodeURIComponent(token)}`
-    + (filtroStatus ? `&status=${filtroStatus}` : '');
-  const r = await fetch(url);
+  const busca = new URLSearchParams();
+  if (filtroStatus) busca.set('status', filtroStatus);
+  if (filtroRevisao) busca.set('revisao', filtroRevisao);
 
-  if (r.status === 401) {
-    $('#conteudo').innerHTML = `<div class="aviso">
-      <h2>Token inválido</h2>
-      <p>Acesse com <code>/admin?token=SEU_TOKEN</code> (o valor de <code>ADMIN_TOKEN</code>).</p>
-    </div>`;
+  const r = await fetch('/api/admin/pedidos' + (busca.size ? `?${busca}` : ''));
+
+  // A sessão dura 12h; quando vence, cai de volta na tela de login.
+  if (r.status === 401) return mostrarEntrada();
+
+  if (!r.ok) {
+    const { erro } = await r.json().catch(() => ({}));
+    $('#conteudo').innerHTML = `<div class="aviso"><h2>Não deu para carregar</h2>
+      <p>${esc(erro || 'Erro no servidor.')}</p></div>`;
     return;
   }
 
-  const { resumo, pedidos } = await r.json();
+  const { resumo, pedidos, itens } = await r.json();
+  CATALOGO = itens || [];
   render(resumo, pedidos);
+}
+
+// --- quantidades a despachar ---------------------------------------------
+
+/** Resumo curto para caber na célula; o detalhe vai no title. */
+function resumoEnvio(p) {
+  const envio = p.envio_efetivo || {};
+  const total = Object.values(envio).reduce((s, n) => s + n, 0);
+  const detalhe = CATALOGO
+    .filter(i => envio[i.slug] > 0)
+    .map(i => `${envio[i.slug]} ${i.rotulo}`)
+    .join('\n') || 'Nada a enviar';
+  return { total, detalhe };
+}
+
+function abrirEnvio(p) {
+  editando = p;
+  $('#envio-quem').textContent = `Pedido #${p.id} · ${p.nome} · kit ${String(p.kit).toUpperCase()}`;
+
+  $('#envio-itens').innerHTML = CATALOGO.map(item => {
+    const atual = p.envio_efetivo?.[item.slug] ?? 0;
+    const padrao = p.envio_padrao?.[item.slug] ?? 0;
+    return `<div class="caixa-item">
+      <label for="env-${item.slug}">${esc(item.rotulo)}
+        <span class="padrao">${atual === padrao ? '' : `padrão: ${padrao}`}</span>
+      </label>
+      <input type="number" id="env-${item.slug}" data-slug="${item.slug}"
+             min="0" max="999" step="1" value="${atual}">
+    </div>`;
+  }).join('');
+
+  $('#dlg-envio').showModal();
+}
+
+async function salvarEnvio(evento) {
+  evento.preventDefault();
+  const envio = {};
+  document.querySelectorAll('#envio-itens input[data-slug]').forEach(campo => {
+    envio[campo.dataset.slug] = Math.max(0, Math.min(999, Number(campo.value) || 0));
+  });
+  await gravarEnvio(editando.id, envio);
+}
+
+async function gravarEnvio(id, envio) {
+  const r = await fetch('/api/admin/envio', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id, envio }),
+  });
+  $('#dlg-envio').close();
+  if (r.status === 401) return mostrarEntrada();
+  carregar();
 }
 
 function render(resumo, pedidos) {
   const topoKit = resumo.porKit.map(k => `${k.kit}: ${k.n}`).join(' · ') || '—';
   const topoUf = resumo.porUf.slice(0, 4).map(u => `${u.uf}: ${u.n}`).join(' · ') || '—';
 
+  // O cartão conta pedidos marcados na página; os totais do resumo olham a base toda.
+  const totalSinais = pedidos.filter(p => sinaisDe(p).length).length;
+  const temSinal = totalSinais > 0;
+  const detalheSinais = [
+    resumo.sinais.ip_repetido && `${resumo.sinais.ip_repetido} IP`,
+    resumo.sinais.endereco_repetido && `${resumo.sinais.endereco_repetido} endereço`,
+    resumo.sinais.nome_repetido && `${resumo.sinais.nome_repetido} nome`,
+    resumo.sinais.email_repetido && `${resumo.sinais.email_repetido} e-mail`,
+  ].filter(Boolean).join(' · ') || 'nada repetido na base';
+
   $('#conteudo').innerHTML = `
     <div class="cartoes">
       <div class="cartao"><div class="r">Pedidos</div><div class="n">${resumo.total}</div></div>
-      <div class="cartao"><div class="r">Adesivos carro</div><div class="n">${resumo.adesivos.carros}</div></div>
-      <div class="cartao"><div class="r">Adesivos moto</div><div class="n">${resumo.adesivos.motos}</div></div>
+      <div class="cartao"><div class="r">Perfurados</div><div class="n">${resumo.perfurados}</div>
+        <div class="d">um por pedido</div></div>
       <div class="cartao"><div class="r">Por kit</div><div class="d">${esc(topoKit)}</div></div>
       <div class="cartao"><div class="r">Top estados</div><div class="d">${esc(topoUf)}</div></div>
+      <div class="cartao"><div class="r">A conferir</div><div class="n">${resumo.revisao.pendente}</div>
+        <div class="d">${resumo.revisao.aprovado} aprovados · ${resumo.revisao.suspeito} suspeitos</div></div>
+      <div class="cartao ${temSinal ? 'alerta' : ''}"><div class="r">Com sinal</div><div class="n">${totalSinais}</div>
+        <div class="d">${esc(detalheSinais)}</div></div>
     </div>
 
     <div class="filtros">
@@ -119,57 +425,138 @@ function render(resumo, pedidos) {
           ${STATUS.map(s => `<option value="${s}" ${s === filtroStatus ? 'selected' : ''}>${s}</option>`).join('')}
         </select>
       </label>
-      <span style="color:var(--tinta-suave);font-size:.85rem">${pedidos.length} exibidos</span>
+      <label>Revisão:
+        <select class="status" id="filtro-revisao">
+          <option value="">todas</option>
+          ${REVISOES.map(s => `<option value="${s}" ${s === filtroRevisao ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </label>
+      <span style="color:var(--tinta-suave);font-size:.85rem">${pedidos.length} exibidos · a tabela rola para o lado</span>
     </div>
 
     <div class="tabela-caixa">
       <table>
         <thead>
           <tr>
-            <th>#</th><th>Nota</th><th>Nome</th><th>WhatsApp</th><th>E-mail</th>
-            <th>Cidade/UF</th><th>Endereço</th><th>Kit</th><th>Carro</th><th>Moto</th>
-            <th>Status</th><th>Data</th>
+            <th>#</th><th>Nota</th><th>Data</th><th>Status</th>
+            <th>Revisão</th><th>Sinais</th><th>Observações</th>
+            <th>Nome</th><th>WhatsApp</th><th>E-mail</th>
+            <th>CEP</th><th>Cidade/UF</th><th>Bairro</th><th>Endereço</th><th>Nº</th><th>Compl.</th>
+            <th>Perfurado</th><th>Contato</th>
+            <th>Kit</th><th>Kit sugerido</th><th>Vai enviar</th>
+            <th>Tempo</th><th>Alcance</th><th>Distribui</th><th>Condomínio</th><th>Unidades</th>
+            <th>LGPD</th>
           </tr>
         </thead>
         <tbody>
-          ${pedidos.map(linha).join('') || '<tr><td colspan="12" style="text-align:center;padding:2rem;color:var(--tinta-suave)">Nenhum pedido ainda.</td></tr>'}
+          ${pedidos.map(linha).join('')
+            || '<tr><td colspan="28" style="text-align:center;padding:2rem;color:var(--tinta-suave)">Nenhum pedido ainda.</td></tr>'}
         </tbody>
       </table>
     </div>
   `;
 
   $('#filtro').addEventListener('change', (e) => { filtroStatus = e.target.value; carregar(); });
+  $('#filtro-revisao').addEventListener('change', (e) => { filtroRevisao = e.target.value; carregar(); });
+
   document.querySelectorAll('[data-status-id]').forEach(sel => {
     sel.addEventListener('change', async () => {
-      await fetch(`/api/admin/status?token=${encodeURIComponent(token)}`, {
+      const r = await fetch('/api/admin/status', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ id: Number(sel.dataset.statusId), status: sel.value }),
       });
+      if (r.status === 401) return mostrarEntrada();
       carregar();
+    });
+  });
+
+  document.querySelectorAll('[data-revisao-id]').forEach(sel => {
+    sel.addEventListener('change', () => salvarRevisao(Number(sel.dataset.revisaoId), sel.value));
+  });
+
+  document.querySelectorAll('[data-envio-id]').forEach(botao => {
+    botao.addEventListener('click', () => {
+      abrirEnvio(pedidos.find(p => p.id === Number(botao.dataset.envioId)));
+    });
+  });
+
+  document.querySelectorAll('[data-nota-id]').forEach(botao => {
+    botao.addEventListener('click', () => {
+      const id = Number(botao.dataset.notaId);
+      const pedido = pedidos.find(p => p.id === id);
+      const texto = prompt(`Observação sobre o pedido #${id} (${pedido.nome}):`, pedido.observacoes || '');
+      if (texto === null) return;                 // cancelou
+      salvarRevisao(id, pedido.revisao, texto.trim());
     });
   });
 }
 
+/** Grava a conferência. `observacoes` undefined mantém a nota que já existe. */
+async function salvarRevisao(id, revisao, observacoes) {
+  const r = await fetch('/api/admin/revisao', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id, revisao, observacoes }),
+  });
+  if (r.status === 401) return mostrarEntrada();
+  carregar();
+}
+
 function linha(p) {
-  const endereco = `${p.endereco}, ${p.numero}${p.complemento ? ' — ' + p.complemento : ''}`;
-  return `<tr>
+  const marcas = sinaisDe(p);
+  const envio = resumoEnvio(p);
+  const classe = p.revisao === 'suspeito' ? 'linha-suspeita'
+    : p.revisao === 'aprovado' ? 'linha-aprovada' : '';
+
+  return `<tr class="${classe}">
     <td>${p.id}</td>
     <td class="nota">${p.engajamento}</td>
-    <td>${esc(p.nome)}</td>
-    <td>${esc(p.whatsapp)}</td>
-    <td>${esc(p.email)}</td>
-    <td>${esc(p.cidade)}/${esc(p.uf)}</td>
-    <td title="${esc(endereco)}">${esc(endereco.slice(0, 34))}${endereco.length > 34 ? '…' : ''}</td>
-    <td><span class="pill">${esc(p.kit)}</span></td>
-    <td>${p.adesivo_carro === 'quero' ? p.qtd_carros : '—'}</td>
-    <td>${p.adesivo_moto === 'quero' ? p.qtd_motos : '—'}</td>
+    <td>${esc((p.criado_em || '').slice(0, 16).replace('T', ' '))}</td>
     <td>
       <select class="status" data-status-id="${p.id}">
         ${STATUS.map(s => `<option value="${s}" ${s === p.status ? 'selected' : ''}>${s}</option>`).join('')}
       </select>
     </td>
-    <td>${esc((p.criado_em || '').slice(0, 16))}</td>
+    <td>
+      <select class="status rev-${p.revisao}" data-revisao-id="${p.id}"
+              title="${p.revisado_por ? `Conferido por ${esc(p.revisado_por)} em ${esc((p.revisado_em || '').slice(0, 16).replace('T', ' '))}` : 'Ainda não conferido'}">
+        ${REVISOES.map(s => `<option value="${s}" ${s === p.revisao ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </td>
+    <td>${marcas.length
+      ? marcas.map(([texto, dica]) => `<span class="sinal" title="${esc(dica)}">${esc(texto)}</span>`).join('')
+      : '<span class="sinal brando">nada</span>'}</td>
+    <td class="obs">
+      <button class="btn-nota" data-nota-id="${p.id}" title="Escrever uma observação">✎</button>
+      ${esc(p.observacoes || '')}
+    </td>
+    <td>${esc(p.nome)}</td>
+    <td>${esc(p.whatsapp)}</td>
+    <td>${esc(p.email)}</td>
+    <td>${esc(p.cep)}</td>
+    <td>${esc(p.cidade)}/${esc(p.uf)}</td>
+    <td>${esc(p.bairro || '—')}</td>
+    <td>${esc(p.endereco)}</td>
+    <td>${esc(p.numero)}</td>
+    <td>${esc(p.complemento || '—')}</td>
+    <td>${QUER_PERFURADO.has(p.adesivo_carro) ? 'sim' : esc(rot(p.adesivo_carro))}</td>
+    <td>${QUER_PERFURADO.has(p.adesivo_carro) ? '<span class="pill alerta">necessita contato</span>' : '—'}</td>
+    <td><span class="pill">${esc(p.kit)}</span></td>
+    <td>${esc(p.kit_recomendado)}</td>
+    <td>
+      <button class="btn-envio ${p.envio_editado ? 'editado' : ''}" data-envio-id="${p.id}"
+              title="Editar as quantidades que vão ser despachadas">✎</button>
+      <span class="envio-resumo" title="${esc(envio.detalhe)}">
+        <b>${envio.total}</b> ${p.envio_editado ? 'ajustado' : 'padrão'}
+      </span>
+    </td>
+    <td>${esc(rot(p.disponibilidade))}</td>
+    <td>${esc(rot(p.contatos))}</td>
+    <td>${esc(rot(p.distribuidores))}</td>
+    <td>${esc(rot(p.mora_condominio))}</td>
+    <td>${p.unidades_condominio ?? '—'}</td>
+    <td>${p.aceite_lgpd ? 'sim' : 'não'}</td>
   </tr>`;
 }
 </script>

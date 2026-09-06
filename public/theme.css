@@ -62,6 +62,13 @@ body {
 }
 
 img { max-width: 100%; display: block; }
+
+/*
+ * O atributo hidden vem da folha do navegador e perde para qualquer regra de
+ * display do autor — era o caso de .btn (inline-flex), que deixava "Voltar" e
+ * "Pedir meu material" visíveis já na etapa 1 e estourava a linha no celular.
+ */
+[hidden] { display: none !important; }
 a { color: inherit; text-decoration: none; }
 
 h1, h2 {
@@ -194,17 +201,6 @@ h3 { font-size: 1.08rem; }
 .portais-link-url { font-size: .78rem; color: var(--tinta-fraca); }
 .portais-link.atual .portais-link-nome { color: var(--acento-claro); }
 body.portais-abertos { overflow: hidden; }
-
-/* ---------- fundo do hero ---------- */
-.hero-fundo {
-  position: absolute; inset: 0; z-index: 0;
-  background:
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--fundo) 10%, transparent) 0%,
-      color-mix(in srgb, var(--fundo) 45%, transparent) 30%,
-      var(--fundo) 50%),
-    url("/assets/chapa-oficial.png") center 15% / cover no-repeat;
-}
 
 /* ---------- tipografia de seção ---------- */
 .secao { padding: clamp(56px, 9vw, 110px) 0; position: relative; overflow: hidden; }

@@ -41,13 +41,9 @@
 
 <!-- ================= 1. HERO ================= -->
 <section class="hero">
-  <div class="hero-fundo"></div>
-
-  <div class="wrap hero-inner">
-    <div class="hero-texto">
-      <h1><span>O material chega até você.</span><span>A rua é com a gente.</span></h1>
-    </div>
-  </div>
+  <img class="hero-capa" src="/assets/chapa-oficial.png" fetchpriority="high"
+       alt="A chapa oficial do Renan">
+  <div class="hero-veu" aria-hidden="true"></div>
 </section>
 
 <!-- ================= 2. FORMULÁRIO ================= -->
@@ -135,26 +131,18 @@
 
         <!-- ETAPA 3 -->
         <fieldset class="etapa" data-etapa="3" hidden>
-          <legend>Adesivos de veículo</legend>
+          <legend>Adesivo perfurado</legend>
 
           <div class="bloco">
-            <h3>Adesivo de carro</h3>
+            <h3>Você quer o adesivo perfurado de vidro traseiro?</h3>
+            <p class="ajuda ajuda-topo">
+              É o único adesivo que a gente envia: perfurado, para o vidro de trás do
+              carro. Não tem parachoque nem adesivo de moto, e vai <strong>um por
+              pedido</strong>. Ele não vem dentro do kit — a gente separa à parte e
+              fala com você antes de enviar.
+            </p>
             <div class="opcoes" data-opcoes="adesivo_carro"></div>
             <p class="erro" data-erro="adesivo_carro"></p>
-            <div class="campo condicional" data-quando="adesivo_carro=quero" hidden>
-              <label for="qtd_carros">Quantos carros você vai adesivar?</label>
-              <input id="qtd_carros" name="qtd_carros" type="number" min="1" max="20" value="1">
-            </div>
-          </div>
-
-          <div class="bloco">
-            <h3>Adesivo de moto</h3>
-            <div class="opcoes" data-opcoes="adesivo_moto"></div>
-            <p class="erro" data-erro="adesivo_moto"></p>
-            <div class="campo condicional" data-quando="adesivo_moto=quero" hidden>
-              <label for="qtd_motos">Quantas motos você vai adesivar?</label>
-              <input id="qtd_motos" name="qtd_motos" type="number" min="1" max="20" value="1">
-            </div>
           </div>
         </fieldset>
 
@@ -198,6 +186,8 @@
           <div class="recomendacao" data-recomendacao hidden></div>
           <div class="grade-kits grade-kits-escolha" data-kits-escolha></div>
           <p class="erro" data-erro="kit"></p>
+          <!-- kit acima do recomendado: o pedido não é gravado, vai para o WhatsApp -->
+          <div class="aviso-kit" data-aviso-kit hidden></div>
         </fieldset>
 
         <!-- ETAPA 6 -->
@@ -225,6 +215,19 @@
         </div>
       </form>
 
+      <!-- KIT MAIOR QUE O RECOMENDADO: confirmação pelo WhatsApp, sem gravar -->
+      <div class="sucesso sucesso-confirmar" data-confirmar hidden>
+        <div class="sucesso-icone sucesso-icone-atencao">!</div>
+        <h2>Falta confirmar com a gente</h2>
+        <p data-confirmar-msg></p>
+        <div class="sucesso-acoes">
+          <a class="btn btn-primario" data-confirmar-whatsapp target="_blank" rel="noopener">
+            Confirmar no WhatsApp
+          </a>
+          <button class="btn btn-vazado" data-confirmar-voltar>Escolher outro kit</button>
+        </div>
+      </div>
+
       <!-- SUCESSO -->
       <div class="sucesso" data-sucesso hidden>
         <div class="sucesso-icone">✓</div>
@@ -242,7 +245,10 @@
 <!-- ================= 3. ADESIVO ================= -->
 <section id="adesivo" class="secao">
   <div class="wrap adesivo-inner">
-    <div class="adesivo-img" data-ilustracao-carro></div>
+    <figure class="adesivo-img">
+      <img src="/assets/VEICULO03.png"
+           alt="Carro visto de trás com o adesivo perfurado aplicado no vidro traseiro">
+    </figure>
     <div class="adesivo-texto">
       <h2>O adesivo perfurado de vidro traseiro</h2>
       <p>
@@ -254,6 +260,10 @@
         <li><strong>Visibilidade preservada</strong> — de dentro para fora, o vidro continua transparente.</li>
         <li><strong>Aplicação simples</strong> — vem com instruções e sai sem deixar resíduo.</li>
       </ul>
+      <p class="nota-perfurado">
+        O perfurado não vem dentro do kit: você precisa marcar no formulário que quer.
+        É um por pedido, e a gente fala com você antes de enviar.
+      </p>
       <a class="btn btn-primario" href="#pedir">Quero o adesivo</a>
     </div>
   </div>
@@ -267,7 +277,11 @@
       <p>Não precisa se comprometer com mais do que você dá conta. Comece por onde der e peça mais depois.</p>
     </header>
     <div class="grade-kits" data-kits-vitrine></div>
-    <p class="centro" style="margin-top:36px">
+    <p class="nota-perfurado centro" style="margin-top:28px">
+      O adesivo perfurado de vidro traseiro não entra no kit: é solicitado à parte,
+      no formulário, e vai um por pedido.
+    </p>
+    <p class="centro" style="margin-top:28px">
       <a class="btn btn-primario btn-lg" href="#pedir">Descobrir meu kit</a>
     </p>
   </div>
@@ -300,10 +314,18 @@
 </section>
 
 <!-- ================= 6. FECHAMENTO ================= -->
-<section class="secao secao-alt secao-cta">
+<section class="secao secao-alt secao-cta" id="pontos">
   <div class="wrap wrap-estreito">
-    <h2>Eleição se ganha na rua</h2>
-    <p>Cada panfleto entregue por alguém conhecido vale mais do que qualquer anúncio. Peça o seu e comece hoje.</p>
+    <h2>Em breve, um lugar perto de você</h2>
+    <p>
+      Estamos abrindo pontos de retirada pela cidade, para você pegar seu
+      material na hora que der, sem esperar entrega. O mapa com os endereços
+      aparece aqui assim que os primeiros pontos forem confirmados.
+    </p>
+
+    <!-- MAPA ENTRA AQUI -->
+
+    <p class="cta-nota">Enquanto isso, a gente entrega no seu endereço.</p>
     <a class="btn btn-destaque btn-lg" href="#pedir">Pedir meu material</a>
   </div>
 </section>

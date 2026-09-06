@@ -2,13 +2,18 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 
-import { configPublica } from './config.js';
+import { configPublica, itensEnvio, linkConfirmacaoKit } from './config.js';
 import { validarPedido } from './lib/validacao.js';
-import { calcularEngajamento, kitRecomendado, kitPorSlug } from './lib/scoring.js';
+import {
+  calcularEngajamento, kitRecomendado, kitPorSlug, kitAcimaDoRecomendado,
+} from './lib/scoring.js';
 import {
   temBanco, descreverConexao, esperarBanco, migrar, criarPedido, listarPedidos,
-  contarPedidos, atualizarStatus, exportarCsv, fecharBanco,
+  contarPedidos, atualizarStatus, atualizarRevisao, atualizarEnvio, exportarCsv, fecharBanco,
 } from './lib/db.js';
+import { sanearEnvio, envioPadrao, envioEfetivo, foiEditado } from './lib/envio.js';
+import { temPlanilha, enviarParaPlanilha } from './lib/planilha.js';
+import { autenticar, criarSessao, lerSessao, cookieSessao, cookieSaida } from './lib/auth.js';
 
 const PORTA = Number(process.env.PORT) || 3000;
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'trocar-este-token';
@@ -87,10 +92,21 @@ function excedeuLimite(ip, max = 12, ms = 10 * 60 * 1000) {
   return marcas.length > max;
 }
 
-function autorizado(url, req) {
+/**
+ * Quem está falando com a API administrativa.
+ *
+ * O painel entra por login (cookie de sessão). O ADMIN_TOKEN continua valendo,
+ * mas só para `export.csv` — é o que a planilha do Google usa, e ela não tem
+ * como fazer login. Assim o painel em si fica restrito às pessoas de `acessos`.
+ */
+function quemE(url, req, { aceitaToken = false } = {}) {
+  const sessao = lerSessao(req);
+  if (sessao) return sessao;
+
+  if (!aceitaToken) return null;
   const token = url.searchParams.get('token')
     || (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-  return token && token === ADMIN_TOKEN;
+  return token && token === ADMIN_TOKEN ? { email: 'token', nome: 'Integração' } : null;
 }
 
 // --- rotas ---------------------------------------------------------------
@@ -184,11 +200,52 @@ const servidor = http.createServer(async (req, res) => {
       const dados = v.dados;
       dados.engajamento = calcularEngajamento(dados);
       dados.kit_recomendado = kitRecomendado(dados.engajamento).slug;
+
+      /*
+       * Kit acima do recomendado não entra no banco.
+       *
+       * O que é gravado aqui vai direto para a pré-expedição, e um kit maior
+       * do que o perfil pede precisa do aval da produção. Gravar obrigaria a
+       * parar a fila e conferir pedido por pedido antes de imprimir etiqueta;
+       * em vez disso a pessoa fala com a produção pelo WhatsApp, que confirma
+       * e cadastra à mão. O front recebe o link já com a mensagem pronta.
+       */
+      if (kitAcimaDoRecomendado(dados.kit, dados.kit_recomendado)) {
+        const pedido = kitPorSlug(dados.kit);
+        const sugerido = kitPorSlug(dados.kit_recomendado);
+        return json(res, 422, {
+          erro: `O ${pedido.nome} é maior do que o ${sugerido.nome}, que é o indicado `
+              + 'pelas suas respostas. Fale com a gente no WhatsApp para confirmar — '
+              + 'seu pedido ainda não foi registrado.',
+          confirmarKit: {
+            kit: pedido,
+            recomendado: sugerido,
+            whatsapp: linkConfirmacaoKit({
+              nome: dados.nome,
+              cidade: dados.cidade,
+              uf: dados.uf,
+              kit: pedido.nome,
+              kitRecomendado: sugerido.nome,
+            }),
+          },
+        });
+      }
+
       dados.ip = ip;
       dados.user_agent = (req.headers['user-agent'] || '').slice(0, 300);
 
       try {
-        const { id } = await criarPedido(dados);
+        const { id, criado_em } = await criarPedido(dados);
+
+        // Não dá await: a resposta ao apoiador não espera o Google.
+        // As colunas env_* vão com o padrão do kit — é o que o CSV traria agora.
+        const padrao = envioPadrao(dados);
+        enviarParaPlanilha({
+          ...dados, id, criado_em, status: 'novo', observacoes: null, revisao: 'pendente',
+          ...Object.fromEntries(Object.entries(padrao).map(([s, q]) => [`env_${s}`, q])),
+          envio_editado: 'nao',
+        });
+
         return json(res, 201, {
           ok: true,
           id,
@@ -206,21 +263,59 @@ const servidor = http.createServer(async (req, res) => {
       }
     }
 
+    // ---- login do painel ------------------------------------------------
+    if (rota === '/api/admin/login' && req.method === 'POST') {
+      const ip = ipDe(req);
+      if (excedeuLimite(`login:${ip}`, 8, 10 * 60 * 1000)) {
+        return json(res, 429, { erro: 'Muitas tentativas. Espere alguns minutos.' });
+      }
+
+      const { email, senha } = await lerJson(req);
+      const usuario = autenticar(email, senha);
+      if (!usuario) return json(res, 401, { erro: 'E-mail ou senha incorretos.' });
+
+      res.setHeader('set-cookie', cookieSessao(criarSessao(usuario), req));
+      return json(res, 200, { ok: true, usuario });
+    }
+
+    if (rota === '/api/admin/logout' && req.method === 'POST') {
+      res.setHeader('set-cookie', cookieSaida(req));
+      return json(res, 200, { ok: true });
+    }
+
     // ---- API administrativa --------------------------------------------
     if (rota.startsWith('/api/admin/')) {
-      if (!autorizado(url, req)) return json(res, 401, { erro: 'Token inválido' });
+      const soExportacao = rota === '/api/admin/export.csv';
+      const usuario = quemE(url, req, { aceitaToken: soExportacao });
+      if (!usuario) return json(res, 401, { erro: 'Faça login para continuar.' });
+
+      if (rota === '/api/admin/eu' && req.method === 'GET') {
+        return json(res, 200, { usuario });
+      }
+
       if (SEM_BANCO) return json(res, 503, { erro: 'Modo vitrine: sem banco conectado.' });
 
       if (rota === '/api/admin/pedidos' && req.method === 'GET') {
-        const [resumo, pedidos] = await Promise.all([
+        const [resumo, lista] = await Promise.all([
           contarPedidos(),
           listarPedidos({
             limite: Math.min(Number(url.searchParams.get('limite')) || 200, 1000),
             offset: Number(url.searchParams.get('offset')) || 0,
             status: url.searchParams.get('status'),
+            revisao: url.searchParams.get('revisao'),
           }),
         ]);
-        return json(res, 200, { resumo, pedidos });
+
+        // O painel recebe as quantidades já resolvidas: não precisa conhecer
+        // a composição dos kits para mostrar o que vai ser despachado.
+        const pedidos = lista.map((p) => ({
+          ...p,
+          envio_efetivo: envioEfetivo(p),
+          envio_padrao: envioPadrao(p),
+          envio_editado: foiEditado(p),
+        }));
+
+        return json(res, 200, { resumo, pedidos, itens: itensEnvio });
       }
 
       if (rota === '/api/admin/status' && req.method === 'POST') {
@@ -228,6 +323,27 @@ const servidor = http.createServer(async (req, res) => {
         const validos = ['novo', 'separado', 'enviado', 'entregue', 'cancelado'];
         if (!validos.includes(status)) return json(res, 400, { erro: 'Status inválido' });
         await atualizarStatus(Number(id), status);
+        return json(res, 200, { ok: true });
+      }
+
+      if (rota === '/api/admin/revisao' && req.method === 'POST') {
+        const { id, revisao, observacoes } = await lerJson(req);
+        if (!['pendente', 'aprovado', 'suspeito'].includes(revisao)) {
+          return json(res, 400, { erro: 'Revisão inválida' });
+        }
+        // Fica registrado quem conferiu — a decisão tem dono.
+        // undefined = não mexer na nota; string vazia = apagar a nota.
+        await atualizarRevisao(
+          Number(id), revisao,
+          observacoes === undefined ? null : String(observacoes).slice(0, 500),
+          usuario.email);
+        return json(res, 200, { ok: true });
+      }
+
+      if (rota === '/api/admin/envio' && req.method === 'POST') {
+        const { id, envio } = await lerJson(req);
+        // envio null volta o pedido para o padrão do kit.
+        await atualizarEnvio(Number(id), envio === null ? null : sanearEnvio(envio));
         return json(res, 200, { ok: true });
       }
 
@@ -315,7 +431,8 @@ async function iniciar() {
   // 0.0.0.0 é obrigatório no Railway — em localhost o healthcheck não enxerga.
   servidor.listen(PORTA, '0.0.0.0', () => {
     console.log(`\n  Site:  http://localhost:${PORTA}`);
-    console.log(`  Admin: http://localhost:${PORTA}/admin?token=${ADMIN_TOKEN}\n`);
+    console.log(`  Admin: http://localhost:${PORTA}/admin  (login por e-mail e senha)`);
+    console.log(`  Planilha: ${temPlanilha ? 'cópia em tempo real ligada' : 'desligada'}\n`);
   });
 }
 
