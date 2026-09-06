@@ -128,8 +128,6 @@ function renderUFs() {
 }
 
 const MAPA_OPCOES = {
-  adesivo_carro: 'adesivoCarro',
-  adesivo_parachoque: 'adesivoParachoque',
   alcance: 'alcance',
 };
 
@@ -175,8 +173,6 @@ function mostrarEtapa(n, foco = true) {
 
   $('[data-etapa-atual]').textContent = etapaAtual;
   $('[data-progresso-barra]').style.width = `${(etapaAtual / TOTAL) * 100}%`;
-
-  if (etapaAtual === TOTAL) montarRevisao();
 
   if (foco) {
     $('#pedir').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -310,6 +306,7 @@ const REGRAS = {
     ['nome', (v) => v.trim().includes(' ') && v.trim().length >= 3, 'Informe nome e sobrenome.'],
     ['email', (v) => /^[^@\s]+@[^@\s.]+\.[^@\s]{2,}$/.test(v.trim()), 'E-mail inválido.'],
     ['whatsapp', (v) => v.replace(/\D/g, '').length >= 10, 'Informe DDD + número.'],
+    ['aceite_lgpd', () => $('#aceite_lgpd').checked, 'É preciso autorizar o uso dos dados para o envio.'],
   ],
   2: [
     ['cep', (v) => v.replace(/\D/g, '').length === 8, 'CEP deve ter 8 dígitos.'],
@@ -319,10 +316,6 @@ const REGRAS = {
     ['numero', (v) => v.trim().length >= 1, 'Informe o número (ou S/N).'],
   ],
   3: [
-    ['adesivo_carro', null, 'Diga se você quer o perfurado.'],
-    ['adesivo_parachoque', null, 'Diga se você quer o adesivo de parachoque.'],
-  ],
-  4: [
     ['alcance', null, 'Escolha uma opção.'],
   ],
 };
@@ -339,12 +332,6 @@ function validarEtapa(n) {
       ok = false;
       primeiroErro ??= campo;
     }
-  }
-
-  if (n === TOTAL && !$('#aceite_lgpd').checked) {
-    mostrarErro('aceite_lgpd', 'É preciso autorizar o uso dos dados para o envio.');
-    ok = false;
-    primeiroErro ??= 'aceite_lgpd';
   }
 
   if (primeiroErro) {
@@ -373,39 +360,6 @@ function limparErro(campo) {
   if (alvo) alvo.textContent = '';
   form.querySelector(`[name="${campo}"]`)?.closest('.campo')?.classList.remove('invalido');
   $('[data-erro-geral]').textContent = '';
-}
-
-// ---------- revisão -------------------------------------------------------
-
-function rotuloDe(campo, valor) {
-  const lista = CFG.opcoes[MAPA_OPCOES[campo]] || [];
-  return lista.find((o) => o.valor === valor)?.rotulo || '—';
-}
-
-function montarRevisao() {
-  const d = coletar();
-
-  const linhas = [
-    ['Contato', 1, `${d.nome}<br>${d.email}<br>${d.whatsapp}`],
-    ['Entrega', 2, `${d.endereco}, ${d.numero}${d.complemento ? ` — ${d.complemento}` : ''}<br>
-                    ${d.bairro ? d.bairro + '<br>' : ''}${d.cidade} / ${d.uf} — CEP ${d.cep}`],
-    ['Adesivo perfurado', 3, rotuloDe('adesivo_carro', d.adesivo_carro)],
-    ['Adesivo de parachoque', 3, rotuloDe('adesivo_parachoque', d.adesivo_parachoque)],
-    ['Alcance', 4, rotuloDe('alcance', d.alcance)],
-  ];
-
-  $('[data-revisao]').innerHTML = linhas.map(([titulo, etapa, conteudo]) => `
-    <dl class="revisao-item">
-      <div>
-        <dt>${titulo}</dt>
-        <dd>${conteudo}</dd>
-      </div>
-      <button type="button" data-corrigir="${etapa}">Corrigir</button>
-    </dl>
-  `).join('');
-
-  $$('[data-corrigir]').forEach((b) =>
-    b.addEventListener('click', () => mostrarEtapa(Number(b.dataset.corrigir))));
 }
 
 // ---------- envio ---------------------------------------------------------

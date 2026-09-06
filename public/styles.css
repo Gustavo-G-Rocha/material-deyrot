@@ -203,25 +203,6 @@
 .opcao:has(input:checked) { border-color: var(--acento); background: var(--veu-2); }
 .condicional { margin-top: 16px; }
 
-/* revisão */
-.revisao { display: grid; gap: 12px; margin-bottom: 26px; }
-.revisao-item {
-  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
-  padding: 16px 18px;
-  background: var(--fundo-2); border: 1px solid var(--linha-fraca); border-radius: var(--raio-sm);
-}
-.revisao-item dt {
-  font-family: var(--fonte-cond); font-size: .74rem;
-  text-transform: uppercase; letter-spacing: .1em; color: var(--acento-claro);
-}
-.revisao-item dd { margin-top: 5px; font-size: .94rem; color: var(--tinta-fraca); }
-.revisao-item button {
-  flex: 0 0 auto; background: none; border: 0; cursor: pointer;
-  font-family: var(--fonte-cond); font-size: .8rem;
-  text-transform: uppercase; letter-spacing: .06em;
-  color: var(--acento-claro); border-bottom: 1px solid currentColor;
-}
-
 .aceite { display: flex; gap: 12px; align-items: flex-start; font-size: .9rem; color: var(--tinta-fraca); }
 .aceite input { accent-color: var(--acento); width: 18px; height: 18px; margin-top: 3px; flex: 0 0 auto; }
 .aceite a { color: var(--acento-claro); border-bottom: 1px solid currentColor; }

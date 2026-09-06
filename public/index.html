@@ -84,6 +84,17 @@
             <p class="ajuda">É por aqui que avisamos quando o material sair para entrega.</p>
             <p class="erro" data-erro="whatsapp"></p>
           </div>
+
+          <label class="aceite">
+            <input type="checkbox" name="aceite_lgpd" id="aceite_lgpd">
+            <span>
+              Autorizo o uso dos meus dados para o envio do material e para contato
+              sobre a campanha, nos termos da
+              <a data-link-privacidade target="_blank" rel="noopener">política de privacidade</a>.
+              Posso pedir a exclusão a qualquer momento.
+            </span>
+          </label>
+          <p class="erro" data-erro="aceite_lgpd"></p>
         </fieldset>
 
         <!-- ETAPA 2 -->
@@ -131,32 +142,6 @@
 
         <!-- ETAPA 3 -->
         <fieldset class="etapa" data-etapa="3" hidden>
-          <legend>Adesivos</legend>
-
-          <div class="bloco">
-            <h3>Você quer o adesivo perfurado de vidro traseiro?</h3>
-            <p class="ajuda ajuda-topo">
-              É perfurado, para o vidro de trás do carro, e vai <strong>um por
-              pedido</strong>. Ele não vem dentro do kit — a gente separa à parte e
-              fala com você antes de enviar.
-            </p>
-            <div class="opcoes" data-opcoes="adesivo_carro"></div>
-            <p class="erro" data-erro="adesivo_carro"></p>
-          </div>
-
-          <div class="bloco">
-            <h3>Você quer o adesivo de parachoque?</h3>
-            <p class="ajuda ajuda-topo">
-              Vai <strong>um por pedido</strong>. Ele também não vem dentro do kit —
-              a gente separa à parte e fala com você antes de enviar.
-            </p>
-            <div class="opcoes" data-opcoes="adesivo_parachoque"></div>
-            <p class="erro" data-erro="adesivo_parachoque"></p>
-          </div>
-        </fieldset>
-
-        <!-- ETAPA 4 -->
-        <fieldset class="etapa" data-etapa="4" hidden>
           <legend>Alcance</legend>
 
           <div class="bloco">
@@ -167,29 +152,12 @@
           </div>
         </fieldset>
 
-        <!-- ETAPA 5 -->
-        <fieldset class="etapa" data-etapa="5" hidden>
-          <legend>Confira e confirme</legend>
-          <div class="revisao" data-revisao></div>
-
-          <label class="aceite">
-            <input type="checkbox" name="aceite_lgpd" id="aceite_lgpd">
-            <span>
-              Autorizo o uso dos meus dados para o envio do material e para contato
-              sobre a campanha, nos termos da
-              <a data-link-privacidade target="_blank" rel="noopener">política de privacidade</a>.
-              Posso pedir a exclusão a qualquer momento.
-            </span>
-          </label>
-          <p class="erro" data-erro="aceite_lgpd"></p>
-          <p class="erro erro-geral" data-erro-geral></p>
-        </fieldset>
-
         <div class="form-acoes">
           <button type="button" class="btn btn-vazado" data-voltar hidden>Voltar</button>
           <button type="button" class="btn btn-primario" data-continuar>Continuar</button>
           <button type="submit" class="btn btn-primario" data-enviar hidden>Pedir meu material</button>
         </div>
+        <p class="erro erro-geral" data-erro-geral></p>
       </form>
 
       <!-- SUCESSO -->
