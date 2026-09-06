@@ -173,17 +173,6 @@ export const opcoes = {
     { valor: 'sim', rotulo: 'Sim, quero o adesivo de parachoque' },
     { valor: 'nao', rotulo: 'Não, quero receber só o kit' },
   ],
-  /**
-   * Substitui as antigas perguntas de perfil (disponibilidade, contatos,
-   * distribuidores, condomínio): uma flag só de quantas pessoas o pedido
-   * tende a alcançar, pra decidir se vale mandar reforço de material.
-   * Não define mais o tamanho do kit — todo pedido sai como Kit M.
-   */
-  alcance: [
-    { valor: '1_a_10', rotulo: '1 a 10 pessoas' },
-    { valor: '11_a_30', rotulo: '11 a 30 pessoas' },
-    { valor: '31_a_50', rotulo: '31 a 50 pessoas' },
-  ],
 };
 
 export const UFS = [

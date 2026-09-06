@@ -26,7 +26,6 @@ async function init() {
   renderCandidatos();
   renderVitrineKits();
   renderUFs();
-  renderTodasOpcoes();
   ligarEventos();
   mostrarEtapa(1);
 }
@@ -125,40 +124,6 @@ function renderUFs() {
   const sel = $('#uf');
   sel.insertAdjacentHTML('beforeend',
     CFG.ufs.map((uf) => `<option value="${uf}">${uf}</option>`).join(''));
-}
-
-const MAPA_OPCOES = {
-  alcance: 'alcance',
-};
-
-function renderTodasOpcoes() {
-  $$('[data-opcoes]').forEach((caixa) => {
-    const campo = caixa.dataset.opcoes;
-    const lista = CFG.opcoes[MAPA_OPCOES[campo]] || [];
-    caixa.innerHTML = lista.map((o) => `
-      <label class="opcao">
-        <input type="radio" name="${campo}" value="${esc(o.valor)}">
-        <span>${esc(o.rotulo)}</span>
-      </label>
-    `).join('');
-  });
-
-  // campos condicionais (ex.: quantos carros)
-  form.addEventListener('change', (e) => {
-    if (e.target.type === 'radio') {
-      limparErro(e.target.name);
-      atualizarCondicionais();
-    }
-  });
-  atualizarCondicionais();
-}
-
-function atualizarCondicionais() {
-  $$('[data-quando]').forEach((el) => {
-    const [campo, valor] = el.dataset.quando.split('=');
-    const marcado = form.querySelector(`[name="${campo}"]:checked`);
-    el.hidden = !(marcado && marcado.value === valor);
-  });
 }
 
 // ---------- navegação entre etapas ---------------------------------------
@@ -315,9 +280,6 @@ const REGRAS = {
     ['endereco', (v) => v.trim().length >= 3, 'Informe o endereço.'],
     ['numero', (v) => v.trim().length >= 1, 'Informe o número (ou S/N).'],
   ],
-  3: [
-    ['alcance', null, 'Escolha uma opção.'],
-  ],
 };
 
 function validarEtapa(n) {
@@ -419,7 +381,7 @@ function mostrarSucesso(res) {
   const painel = $('[data-sucesso]');
   painel.hidden = false;
   $('[data-sucesso-msg]').innerHTML =
-    `Seu <b>${esc(res.kit.nome)}</b> entrou na fila de separação. Avisamos pelo WhatsApp
+    `Seu pedido entrou na fila de separação. Avisamos pelo WhatsApp
      assim que o material sair para entrega. Protocolo <b>#${res.id}</b>.`;
   painel.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }

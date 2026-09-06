@@ -175,33 +175,12 @@
 
 .ajuda { font-size: .82rem; color: var(--tinta-fraca); margin-top: 7px; }
 .ajuda a { color: var(--acento-claro); border-bottom: 1px solid currentColor; }
-.ajuda-topo { margin: -8px 0 24px; }
 .erro { color: var(--erro); font-size: .84rem; margin-top: 7px; }
 .erro:empty { display: none; }
 .erro-geral { margin-top: 16px; font-family: var(--fonte-cond); letter-spacing: .04em; }
 
 .linha { display: grid; grid-template-columns: 1fr 120px; gap: 16px; }
 @media (max-width: 540px) { .linha { grid-template-columns: 1fr; } }
-
-.bloco { margin-bottom: 30px; }
-.bloco h3 {
-  text-transform: uppercase; letter-spacing: .05em;
-  font-size: 1rem; margin-bottom: 14px; color: var(--tinta);
-}
-
-.opcoes { display: grid; gap: 10px; }
-.opcao {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px;
-  background: var(--fundo-2);
-  border: 1.5px solid var(--linha-fraca); border-radius: var(--raio-sm);
-  cursor: pointer;
-  transition: border-color .18s ease, background .18s ease;
-}
-.opcao:hover { border-color: var(--acento); }
-.opcao input { accent-color: var(--acento); width: 18px; height: 18px; flex: 0 0 auto; }
-.opcao:has(input:checked) { border-color: var(--acento); background: var(--veu-2); }
-.condicional { margin-top: 16px; }
 
 .aceite { display: flex; gap: 12px; align-items: flex-start; font-size: .9rem; color: var(--tinta-fraca); }
 .aceite input { accent-color: var(--acento); width: 18px; height: 18px; margin-top: 3px; flex: 0 0 auto; }
