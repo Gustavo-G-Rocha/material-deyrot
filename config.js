@@ -57,6 +57,21 @@ export const campanha = {
   },
 
   /**
+   * Os domínios que servem este mesmo app no Railway.
+   *
+   * O projeto é um só, mas cada candidato divulga o seu endereço — e a
+   * produção precisa saber de qual deles veio cada pedido para separar as
+   * listas. O servidor grava o host da requisição na coluna `origem`
+   * (ver origemDe no server.js); esta lista só traduz o host num nome
+   * legível no painel. Host que não estiver aqui é gravado do mesmo jeito,
+   * e aparece cru na coluna.
+   */
+  dominios: [
+    { host: 'material.pedrodeyrot.com', rotulo: 'Pedro Deyrot' },
+    { host: 'material.willrocha.com.br', rotulo: 'Will Rocha' },
+  ],
+
+  /**
    * Painel lateral do menu. Mistura âncoras desta página com os outros
    * portais da campanha. `nota` é a linha cinza embaixo do nome;
    * `atual: true` destaca o item da página em que a pessoa já está.

@@ -2,12 +2,13 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 
-import { configPublica, itensEnvio } from './config.js';
+import { campanha, configPublica, itensEnvio } from './config.js';
 import { validarPedido } from './lib/validacao.js';
 import { kitPorSlug } from './lib/scoring.js';
 import {
   temBanco, descreverConexao, esperarBanco, migrar, criarPedido, listarPedidos,
-  contarPedidos, atualizarStatus, atualizarRevisao, atualizarEnvio, exportarCsv, fecharBanco,
+  contarPedidos, atualizarStatus, atualizarRevisao, atualizarEnvio, atualizarOrigem,
+  exportarCsv, fecharBanco,
 } from './lib/db.js';
 import { sanearEnvio, envioPadrao, envioEfetivo, foiEditado } from './lib/envio.js';
 import { temPlanilha, enviarParaPlanilha } from './lib/planilha.js';
@@ -71,6 +72,23 @@ async function lerJson(req, limiteBytes = 64 * 1024) {
     });
     req.on('error', rejectP);
   });
+}
+
+/**
+ * De qual domínio veio a requisição.
+ *
+ * O mesmo app responde por material.pedrodeyrot.com e material.willrocha.com.br,
+ * e a produção separa as listas por aí. Atrás do proxy do Railway o host
+ * original chega em `x-forwarded-host` — `host` sozinho pode ser o endereço
+ * interno do serviço. Guardamos o host cru: se um dia entrar um terceiro
+ * domínio, o pedido antigo continua dizendo a verdade sem precisar de
+ * migração. A tradução para nome de gente é só no painel.
+ */
+function origemDe(req) {
+  const bruto = req.headers['x-forwarded-host'] || req.headers.host || '';
+  const primeiro = String(bruto).split(',')[0].trim().toLowerCase();
+  // tira a porta (localhost:3000) e o ponto final de um FQDN absoluto
+  return primeiro.replace(/:\d+$/, '').replace(/\.$/, '').slice(0, 120) || null;
 }
 
 function ipDe(req) {
@@ -190,6 +208,7 @@ const servidor = http.createServer(async (req, res) => {
 
       const dados = v.dados;
       dados.ip = ip;
+      dados.origem = origemDe(req);
       dados.user_agent = (req.headers['user-agent'] || '').slice(0, 300);
 
       try {
@@ -261,6 +280,7 @@ const servidor = http.createServer(async (req, res) => {
             offset: Number(url.searchParams.get('offset')) || 0,
             status: url.searchParams.get('status'),
             revisao: url.searchParams.get('revisao'),
+            origem: url.searchParams.get('origem'),
           }),
         ]);
 
@@ -273,7 +293,9 @@ const servidor = http.createServer(async (req, res) => {
           envio_editado: foiEditado(p),
         }));
 
-        return json(res, 200, { resumo, pedidos, itens: itensEnvio });
+        return json(res, 200, {
+          resumo, pedidos, itens: itensEnvio, dominios: campanha.dominios,
+        });
       }
 
       if (rota === '/api/admin/status' && req.method === 'POST') {
@@ -295,6 +317,18 @@ const servidor = http.createServer(async (req, res) => {
           Number(id), revisao,
           observacoes === undefined ? null : String(observacoes).slice(0, 500),
           usuario.email);
+        return json(res, 200, { ok: true });
+      }
+
+      if (rota === '/api/admin/origem' && req.method === 'POST') {
+        const { id, origem } = await lerJson(req);
+        // Só os domínios conhecidos, ou null para voltar a "não sei". O valor
+        // decide o que a pessoa recebe, então não entra texto livre por aqui.
+        const conhecidos = campanha.dominios.map((d) => d.host);
+        if (origem !== null && !conhecidos.includes(origem)) {
+          return json(res, 400, { erro: 'Domínio desconhecido' });
+        }
+        await atualizarOrigem(Number(id), origem);
         return json(res, 200, { ok: true });
       }
 
